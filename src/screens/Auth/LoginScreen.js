@@ -7,16 +7,16 @@ import {
     TouchableOpacity,
     Alert,
     ActivityIndicator
-} from 'react-native'
-import LinearGradient from 'react-native-linear-gradient'
-import GradientButton from '../../components/GradientButton'
+} from 'react-native';
+import Video from 'react-native-video';
+import LinearGradient from 'react-native-linear-gradient';
+import GradientButton from '../../components/GradientButton';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import CustomTextInput from './CustomTextInput'
+import CustomTextInput from '../../components/CustomTextInput';
+import CustomPassInput from '../../components/CustomPassInput';
 import ValidationComponent from 'react-native-form-validator';
-import PasswordInputText from 'react-native-hide-show-password-input';
-import _ from 'lodash'
+import _ from 'lodash';
 import { TextInput } from 'react-native-gesture-handler';
 
 class LoginScreen extends ValidationComponent {
@@ -27,30 +27,35 @@ class LoginScreen extends ValidationComponent {
     };
 
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             emailAddress: "",
             password: '',
             passwordValid: null,
-            isLoggingIn: false
+            isLoggingIn: false,
+            showpassword: true
         }
     }
     
     componentDidMount() {
-        this.mounted = true
+        this.mounted = true;
     }
     
     componentWillUnmount() {
-        this.mounted = false
+        this.mounted = false;
     }
 
   
     _login = () => {
-        this.props.navigation.navigate('Home')
+        this.props.navigation.navigate('Home');
     }
 
     _forgot = () => {
-        this.props.navigation.navigate('Forgotpass')
+        this.props.navigation.navigate('Forgotpass');
+    }
+
+    _register =() => {
+        this.props.navigation.navigate('Register');
     }
 
     _onChangeEmail = (email) => {
@@ -63,18 +68,22 @@ class LoginScreen extends ValidationComponent {
     }
 
     _onChangePassword = (text) => {
-        this.setState({ password: text })
+        this.setState({ password: text });
         this.handleValidation(text);
     }
 
     handleValidation = (value) => {
         let reg = /(?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/
         if (reg.test(value)){
-            this.setState({passwordValid: true})
+            this.setState({passwordValid: true});
         }
         else {
-            this.setState({passwordValid: false})
+            this.setState({passwordValid: false});
         }
+    }
+
+    changePwdType = () => {
+        this.setState( state => ({showpassword: !state.showpassword}));
     }
 
     render() {
@@ -89,12 +98,16 @@ class LoginScreen extends ValidationComponent {
             <KeyboardAwareScrollView 
                 style={styles.container}>
                 <Image 
-                    source={require('../../resources/images/appLogo2.png')} 
+                    source={require('../../resources/images/applogo.png')} 
                     style={styles.appLogo}/>
-                <View style={styles.appimage}>
-                    <Image 
-                        source={require('../../resources/images/appLogo1.png')}
-                        style={{width: 300, height: 200}}/>
+                <View style={styles.appimage}>                  
+                    <Video source={require('../../resources/images/OutlookGuide.mov')} 
+                        ref={(ref) => {
+                            this.player = ref
+                        }}                                     
+                        onBuffer={this.onBuffer}               
+                        onError={this.videoError}          
+                        style={styles.backgroundVideo} />
                 </View>
                 <View style={styles.buttons}>
                     <FontAwesome.Button
@@ -137,30 +150,17 @@ class LoginScreen extends ValidationComponent {
                         onChangeText={this._onChangeEmail}
                     />   
                     {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }                
-                    <View style={styles.textInputWrapper}>
-                        <TextInput 
-                            style={styles.textInput}
-                            lineWidth={0}
-                            containerStyle={{paddingTop: 0}}
-                            getRef={input => this.input = input} 
-                            value={password}
-                            label=''
-                            placeholder="Password"
-                            placeholderTextColor="#707070"
-                            secureTextEntry={true}
-                            onChangeText={this._onChangePassword}
-                        />
-                         <MaterialIcons 
-                        style={styles.icon}
-                        name={'visibility-off'}
-                        size={30}
-                        // color={componentColors.password_icon_color}
-                        // onPress={this.changePwdType}
-                    />   
-                    </View>
-                   
-                   
-                    
+                    <CustomPassInput 
+                        inputWrapperStyle={{
+                            marginBottom: 5
+                        }}
+                        value={password}
+                        placeholder="Password"
+                        placeholderTextColor="#707070"
+                        secureTextEntry={this.state.showpassword}
+                        onChangeText={this._onChangePassword}
+                        iconPress={this.changePwdType}
+                    />
                     {passwordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Password must be contain at least one uppercase, number, lowercase and character
@@ -207,13 +207,22 @@ const styles = StyleSheet.create({
     },
     appLogo: {
         position: 'absolute',
-		left: 15,
-		top: 15,
+		left: 10,
+		top: 3,
 		// width: 50,
 		// height: 50,
     },
+    backgroundVideo: {
+        position: 'absolute',
+        left: 40,
+		top: 50,
+        bottom: 0,
+        right: 0,
+    },
     appimage: {
-        marginTop: 40,
+        marginTop: 30,
+        width: "100%",
+        height: 230,
         alignItems: 'center'
     },
     textor: {

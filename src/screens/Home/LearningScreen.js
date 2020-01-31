@@ -30,7 +30,7 @@ class LearningScreen extends Component {
         return (
             <ImageBackground source={require('../../resources/images/Outlook.png')} style={{width: '100%', height: '100%'}}>
                 <View>
-                    <Image source={require('../../resources/images/appLogo2.png')} style={{position: 'absolute', top: 5, left: 10}}/>
+                    <Image source={require('../../resources/images/applogo.png')} style={{position: 'absolute', top: 5, left: 10}}/>
                 </View>
                 <View style={{position:'absolute', top: 10, right: 10}}>
                     <Icon
@@ -44,7 +44,7 @@ class LearningScreen extends Component {
                 </View>
                 <View style={{flexDirection: 'row', position:'absolute', bottom:20, left: 10}}>
                     <TouchableOpacity onPress={()=>this.Start()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                             Start
                         </Text>
                     </TouchableOpacity>
@@ -58,7 +58,7 @@ class LearningScreen extends Component {
                 </View>
                 <View style={{flexDirection: 'row', position:'absolute', bottom:20, right: 10}}>
                     <TouchableOpacity onPress={()=>this.Back()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                            Back
                         </Text>
                     </TouchableOpacity>
@@ -79,15 +79,14 @@ const styles = StyleSheet.create({
     },
     button: {
         justifyContent:'center',
-        width: 54, 
+        width: 55, 
         height: 54, 
-        marginHorizontal: 30,
-        borderRadius: 27,
-        transform: [
-            {scaleX: 2}
-        ],
-        backgroundColor:'white',
-        opacity: 0.7
+        marginHorizontal: 15,
+    },
+    textStyle: {
+        textAlign: 'center',
+        fontSize: 18,
+        fontFamily: 'bold'
     },
     feedback: {
         width: 240, 

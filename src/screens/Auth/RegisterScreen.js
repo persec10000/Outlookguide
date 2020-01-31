@@ -8,7 +8,8 @@ import {
     ImageBackground,
     Alert
 } from 'react-native'
-import CustomTextInput from './CustomTextInput'
+import CustomTextInput from '../../components/CustomTextInput'
+import CustomPassInput from '../../components/CustomPassInput'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import GradientButton from '../../components/GradientButton'
 import ValidationComponent from 'react-native-form-validator';
@@ -31,7 +32,9 @@ export default class RegisterScreen extends ValidationComponent {
             password: '',
             passwordConfirm: '',
             passwordValid: null,
-            repasswordValid: null
+            repasswordValid: null,
+            showpassword: true,
+            showconfirmpassword: true
         }
     }
     
@@ -137,6 +140,16 @@ export default class RegisterScreen extends ValidationComponent {
         }
     }
 
+    changePwdType = () => {
+        this.setState( state => ({showpassword: !state.showpassword}));
+    }
+
+    changePwdConfirmType = () => {
+        this.setState( state => ({showconfirmpassword: !state.showconfirmpassword}));
+    }
+
+
+
     render() {
         const { 
             emailAddress,
@@ -147,14 +160,10 @@ export default class RegisterScreen extends ValidationComponent {
         } = this.state;
         return (
             <KeyboardAwareScrollView style={styles.container}>
-                <TouchableOpacity style={styles.backbutton} onPress={this._back}>
-                    <Image source={require('../../resources/images/caret-left.png')}/>
-                </TouchableOpacity>
-                <View style={styles.appLogoContainer}>
-                    <Image
-                        source={require('../../resources/images/appLogo2.png')}
-                    />
-                </View>
+                <Image
+                    source={require('../../resources/images/applogo.png')}
+                    style={styles.applogo}
+                />
                 <View style={styles.registerForm}>
                     <Text style={styles.registerLabel}>Sign  Up</Text>
                     <CustomTextInput 
@@ -167,36 +176,42 @@ export default class RegisterScreen extends ValidationComponent {
                         onChangeText={this._onChangeEmail}
                     />   
                     {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }
-                    <CustomTextInput 
-                        placeholder="Password"
-                        placeholderTextColor="#707070"
-                        secureTextEntry={true}
+                    <CustomPassInput 
                         inputWrapperStyle={{
                             marginBottom: 5
                         }}
                         value={password}
+                        placeholder="Password"
+                        placeholderTextColor="#707070"
+                        secureTextEntry={this.state.showpassword}
                         onChangeText={this._onChangePassword}
+                        iconPress={this.changePwdType}
                     />
                     {passwordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
                     }
-                    <CustomTextInput 
-                        placeholder="Re-Enter Password"
-                        placeholderTextColor="#707070"
-                        secureTextEntry={true}
+                    <CustomPassInput 
                         inputWrapperStyle={{
                             marginBottom: 5
                         }}
                         value={passwordConfirm}
+                        placeholder="Re-Enter Password"
+                        placeholderTextColor="#707070"
+                        secureTextEntry={this.state.showconfirmpassword}
                         onChangeText={this._onChangePasswordConfirm}
+                        iconPress={this.changePwdConfirmType}
                     />
                     {repasswordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
-                    } 
+                    }
+                    <GradientButton
+                        label="Back"
+                        _onPress={this._back}
+                    /> 
                     <GradientButton
                         label="Sign up"
                         // _onPress={this._startMakingOrder}
@@ -211,14 +226,18 @@ const styles = StyleSheet.create({
     container: {
         flex: 1
     },
-    appLogoContainer: {
-        marginTop: 50,
-        alignItems: 'center',
+    applogo: {
+        position: 'absolute',
+		left: 10,
+		top: 3,
     },
     backbutton:{
         position: 'absolute',
         left: 25,
         top: 25
+    },
+    registerForm: {
+      marginTop: 100  
     },
     registerLabel: {
         fontSize: 24,

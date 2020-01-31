@@ -26,7 +26,7 @@ class AboutUsScreen extends Component {
     render() {
         return (
             <View style={{flex: 1, justifyContent: 'center'}}>
-                <Image source={require('../../resources/images/appLogo2.png')} style={{position: 'absolute', top: 5, left: 10}}/>
+                <Image source={require('../../resources/images/applogo.png')} style={{position: 'absolute', top: 5, left: 10}}/>
                 <Text style={{textAlign: 'center'}}>
                     About US screen
                 </Text>

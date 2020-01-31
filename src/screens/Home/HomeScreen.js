@@ -10,13 +10,15 @@ class HomeScreen extends Component {
         super(props);
         this.state={
             isGuide: null,
-            switchOn2: false
+            switchOn2: false,
+            ismount: false
         }
     }
 
 
     componentDidMount(){
         this.focusListener = this.props.navigation.addListener("didFocus", () => {
+            this.setState({ismount: true});
             Orientation.lockToLandscape();
         });
         
@@ -59,11 +61,18 @@ class HomeScreen extends Component {
         this.props.navigation.dispatch(DrawerActions.toggleDrawer())
     }   
     render() {
-        const {isGuide, switchOn2} = this.state
+        const {isGuide, switchOn2, ismount} = this.state
+        if (!ismount){
+        return( 
+            <>
+            </>
+        )
+        }
+        else {
         return (
             <ImageBackground source={require('../../resources/images/images.jpg')} style={{width: '100%', height: '100%'}}>
                 <View>
-                    <Image source={require('../../resources/images/appLogo2.png')} style={{position: 'absolute', top: 5, left: 10}}/>
+                    <Image source={require('../../resources/images/applogo.png')} style={{position: 'absolute', top: 5, left: 10}}/>
                 </View>
                 <TouchableOpacity onPress={()=>this.toggleDrawer()} style={{position:'absolute', top: 10, right: 10}}>
                     <Icon
@@ -105,12 +114,12 @@ class HomeScreen extends Component {
                 :
                 <View style={{flexDirection: 'row', position:'absolute', bottom:20, left: 10}}>
                     <TouchableOpacity onPress={()=>this.Guide()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                             Guide
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=>this.Learn()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                             Learn
                         </Text>
                     </TouchableOpacity>
@@ -125,19 +134,19 @@ class HomeScreen extends Component {
                 </View>
                 <View style={{flexDirection: 'row', position:'absolute', bottom:20, right: 10}}>
                     <TouchableOpacity onPress={()=>this.Read()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                             Read
                         </Text>
                     </TouchableOpacity>
                     {isGuide?
                     <TouchableOpacity onPress={()=>this.Stop()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                             Stop
                         </Text>
                     </TouchableOpacity>
                     :
                     <TouchableOpacity onPress={()=>this.Exit()} style={styles.button}>
-                        <Text style={{textAlign: 'center'}}>
+                        <Text style={styles.textStyle}>
                             Exit
                         </Text>
                     </TouchableOpacity>
@@ -145,6 +154,7 @@ class HomeScreen extends Component {
                 </View>
             </ImageBackground>
         )
+        }
     }
 }
 const iconStyles = {
@@ -159,15 +169,14 @@ const styles = StyleSheet.create({
     },
     button: {
         justifyContent:'center',
-        width: 54, 
+        width: 55, 
         height: 54, 
-        marginHorizontal: 30,
-        borderRadius: 27,
-        transform: [
-            {scaleX: 2}
-        ],
-        backgroundColor:'white',
-        opacity: 0.7
+        marginHorizontal: 15,
+    },
+    textStyle: {
+        textAlign: 'center',
+        fontSize: 18,
+        fontFamily: 'bold'
     },
     feedback: {
         width: 240, 

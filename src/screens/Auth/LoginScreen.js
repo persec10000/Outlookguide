@@ -6,7 +6,8 @@ import {
     Image,
     TouchableOpacity,
     Alert,
-    ActivityIndicator
+    ActivityIndicator,
+    BackHandler
 } from 'react-native';
 import Video from 'react-native-video';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,8 +17,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import CustomTextInput from '../../components/CustomTextInput';
 import CustomPassInput from '../../components/CustomPassInput';
 import ValidationComponent from 'react-native-form-validator';
+
+import Orientation from 'react-native-orientation-locker';
 import _ from 'lodash';
-import { TextInput } from 'react-native-gesture-handler';
+import { usersService } from '../../services/UsersService';
 
 class LoginScreen extends ValidationComponent {
     static navigationOptions = ({ navigation, screenProps }) => {
@@ -38,14 +41,23 @@ class LoginScreen extends ValidationComponent {
     }
     
     componentDidMount() {
+        this.focusListener = this.props.navigation.addListener("didFocus", () => {
+            this.setState({ismount: true});
+            Orientation.lockToPortrait();
+        });
         this.mounted = true;
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
     }
     
     componentWillUnmount() {
         this.mounted = false;
     }
 
-  
+    handleBackButton() {
+        // this.props.navigation.navigate('Login');
+        return true;
+    }
+    
     _login = () => {
         this.props.navigation.navigate('Home');
     }
@@ -86,6 +98,41 @@ class LoginScreen extends ValidationComponent {
         this.setState( state => ({showpassword: !state.showpassword}));
     }
 
+    // _login = async () => {
+    //     const { 
+    //         email,
+    //         password
+    //     } = this.state;
+
+    //     if(
+    //          _.isEmpty(email)
+    //         || _.isEmpty(password)) {
+    //             Alert.alert(__APP_NAME__, 'All fields must be not empty');
+    //             return
+    //         }        
+
+    //     let params = {
+    //         email,
+    //         password,
+    //     }
+
+    //     usersService.signin(params, async function(res) {
+    //         if(res.length > 0) {
+    //           let user = res[0];
+    //           global.initialcurUser = user;
+    //           await AsyncStorage.setItem('Email',global.initialcurUser.email);
+    //           await AsyncStorage.setItem('userId',JSON.stringify(global.initialcurUser.userId));
+    //           setTimeout(() => {
+    //             self.props.navigation.navigate('Home');;
+    //           }, 600 );
+              
+    //         }
+    //       }, function (error) {
+    //         console.log(error);
+    //         }
+    //     );
+    // }
+
     render() {
         const {
             emailAddress,
@@ -107,7 +154,8 @@ class LoginScreen extends ValidationComponent {
                         }}                                     
                         onBuffer={this.onBuffer}               
                         onError={this.videoError}          
-                        style={styles.backgroundVideo} />
+                        style={styles.backgroundVideo}
+                        repeat={true} />
                 </View>
                 <View style={styles.buttons}>
                     <FontAwesome.Button
@@ -129,9 +177,6 @@ class LoginScreen extends ValidationComponent {
                         CONNECT WITH FACEBOOK
                     </FontAwesome.Button>
                 </View>
-                <Text style={styles.textor}>
-                    or
-                </Text>
                 <View
                     style={{
                         borderBottomColor: '#d1d1d1',
@@ -139,6 +184,9 @@ class LoginScreen extends ValidationComponent {
                         marginHorizontal: 15
                     }}
                 />
+                <Text style={styles.textor}>
+                    or
+                </Text>
                 <View style={styles.mainLoginContainer}>
                     <CustomTextInput 
                         inputWrapperStyle={{
@@ -207,10 +255,8 @@ const styles = StyleSheet.create({
     },
     appLogo: {
         position: 'absolute',
-		left: 10,
-		top: 3,
-		// width: 50,
-		// height: 50,
+		left: 0,
+		top: -10,
     },
     backgroundVideo: {
         position: 'absolute',
@@ -220,21 +266,21 @@ const styles = StyleSheet.create({
         right: 0,
     },
     appimage: {
-        marginTop: 30,
+        marginTop: 50,
         width: "100%",
         height: 230,
         alignItems: 'center'
     },
     textor: {
-        marginVertical: 8, 
+        marginVertical: 5, 
         textAlign: 'center', 
         color:"#A1A1A1", 
-        fontSize: 26,
+        fontSize: 18,
         fontWeight: 'bold'
     },
     mainLoginContainer: {
         flex: 1,
-        marginTop: 20
+        marginTop: 5
     },
     forgotPasswordContainer: {
         paddingHorizontal: 110,

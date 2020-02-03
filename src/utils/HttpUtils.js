@@ -1,87 +1,19 @@
-export const BASE_USER_URL = "https://game.invoicegeek.com/api/webapi.asmx/";
-export const BASE_URL = "http://gameapi.invoicegeek.com/api/";
+export const BASE_URL = "https://outlookguide.net/";
 
 class HttpUtils {
 
   signup() {
-    return BASE_URL + "User/UserSignUp";
+    return BASE_URL + "?cmd=OG-signup";
   }
 
   signin() {
-    return BASE_URL + "User/ValidateLogin";
+    return BASE_URL + "?cmd=OG-login";
   }
 
-  updateUser() {
-    return BASE_URL + "User/UpdateUserDetails";
+  forgotpass() {
+    return BASE_URL + "?cmd=OG-forgot";
   }
 
-  loadItemType() {
-    return BASE_URL + "Setting/LoadItemType";
-  }
-
-  loadCountries() {
-    return BASE_URL + "Setting/LoadCountry";
-  }
-
-  loadUser(userId) {
-    return BASE_URL + "User/LoadUser?UserId=" + userId;
-  }
-
-  checkNickName(nickname) {
-    return BASE_URL + "User/CheckNickName?NickName=" + nickname;
-  }
-
-  loadGroupWithUsers() {
-    return BASE_URL + "User/LoadGroupWithUsers";
-  }
-
-  addEditItem() {
-    return BASE_URL + "Item/SaveUpdateItem";
-  }
-
-  loadItemList(count) {
-    return BASE_URL + "Item/LoadItemListWithFilter";
-  }
-
-  loadItemDetails() {
-    return BASE_URL + "Item/LoadItemDetails";
-  }
-
-  loadGroups() {
-    return BASE_URL + "Setting/LoadGroup";
-  }
-
-  filterGroups() {
-    return BASE_URL + "Group/LoadGroupListWithFilter";
-  }
-
-  loadGroupMembers() {
-    return BASE_URL + "Group/LoadUserDetailsForGroup";
-  }
-
-  joinGroup() {
-    return BASE_URL + "Group/SaveGroupUser";
-  }
-
-  leaveGroup() {
-    return BASE_URL + "Group/DeleteGroupUser";
-  }
-
-  addGroup() {
-    return BASE_URL + "Group/SaveUpdateGroup";
-  }
-
-  loadKeywords() {
-    return BASE_URL + "Setting/LoadKeyword";
-  }
-
-  loadKeywordForUsers() {
-    return BASE_URL + "User/LoadKeywordForUsers";
-  }
-
-  loadUserListWithFilter() {
-    return BASE_URL + "Item/LoadItemListWithFilter";
-  }
 
   // Headers ======================
   getHeaders() {

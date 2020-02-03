@@ -6,15 +6,18 @@ import {
     Image,
     TouchableOpacity,
     ImageBackground,
-    Alert
+    Alert,
+    BackHandler
 } from 'react-native'
 import CustomTextInput from '../../components/CustomTextInput'
 import CustomPassInput from '../../components/CustomPassInput'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import GradientButton from '../../components/GradientButton'
 import ValidationComponent from 'react-native-form-validator';
-import _ from 'lodash'
+import { usersService } from '../../services/UsersService';
 
+import _ from 'lodash'
+let self = null;
 
 export default class RegisterScreen extends ValidationComponent {
     static navigationOptions = ({navigation, navigationOptions}) => {
@@ -25,7 +28,7 @@ export default class RegisterScreen extends ValidationComponent {
     
     constructor(props) {
         super(props)
-    
+        self = this;
         this.state = {
             isChecked: false,
             emailAddress: '',
@@ -88,24 +91,13 @@ export default class RegisterScreen extends ValidationComponent {
     }
     _register = async () => {
         const { 
-            isChecked,
-            name,
-            phone,
-            birthday,
-            address,
             email,
             password,
             passwordConfirm
         } = this.state;
 
-        if(!isChecked) {
-            Alert.alert(__APP_NAME__, 'You must accept Terms & Conditions first');
-            return
-        }
-
-        if(_.isEmpty(name) 
-            || _.isEmpty(phone)
-            || _.isEmpty(email)
+        if(
+             _.isEmpty(email)
             || _.isEmpty(password)
             || _.isEmpty(passwordConfirm)) {
                 Alert.alert(__APP_NAME__, 'All fields must be not empty');
@@ -117,27 +109,35 @@ export default class RegisterScreen extends ValidationComponent {
             return
         }
 
-        const path = '/api/v1/user'
-        const data = {
-            name,
-            phone,
+        let params = {
             email,
             password,
-            address,
-            username: email,
-            birthday: birthday.format()
         }
 
-        const { response, error } = await APIClient.getInstance().jsonPOST(path, data)
-        console.log(response)
-        if(response && response.status && response.code === 200 && !_.isEmpty(response.data)) {
-            Alert.alert(__APP_NAME__, response.message);
-            userManager.updateUser(response.data)
-            this.props.navigation.navigate('App')
-        }
-        else {
-            Alert.alert(__APP_NAME__, 'Create user failed');
-        }
+        usersService.signup(params, async function(res) {
+            if(res.length > 0) {
+              let user = res[0];
+              global.initialcurUser = user;
+              await AsyncStorage.setItem('Email',global.initialcurUser.email);
+              await AsyncStorage.setItem('userId',JSON.stringify(global.initialcurUser.userId));
+              setTimeout(() => {
+                self._back();
+              }, 600 );
+              
+            }
+          }, function (error) {
+            console.log(error);
+            }
+        );
+    }
+
+    componentDidMount(){
+        BackHandler.addEventListener('hardwareBackPress',this.handleBackButton.bind(this));
+    }
+    handleBackButton(){
+        console.log("Backbutton pressed")
+        // this.props.navigation.goBack(null);
+        return true;
     }
 
     changePwdType = () => {
@@ -148,8 +148,7 @@ export default class RegisterScreen extends ValidationComponent {
         this.setState( state => ({showconfirmpassword: !state.showconfirmpassword}));
     }
 
-
-
+    
     render() {
         const { 
             emailAddress,
@@ -209,11 +208,11 @@ export default class RegisterScreen extends ValidationComponent {
                         </Text>
                     }
                     <GradientButton
-                        label="Back"
+                        label="home"
                         _onPress={this._back}
                     /> 
                     <GradientButton
-                        label="Sign up"
+                        label="sign up"
                         // _onPress={this._startMakingOrder}
                     />
                 </View>
@@ -237,7 +236,7 @@ const styles = StyleSheet.create({
         top: 25
     },
     registerForm: {
-      marginTop: 100  
+      marginTop: 150  
     },
     registerLabel: {
         fontSize: 24,

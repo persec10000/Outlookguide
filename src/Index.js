@@ -104,7 +104,7 @@ const DrawerRouteConfigs = {
 const DrawerNavigatorConfigs = {
   // initialRouteName: 'DrawerStack',
   // contentComponent: DrawerView,
-  drawerWidth: 299,
+  drawerWidth: 150,
   navigationOptions: {
     drawerLabel: "setting",
     // drawerIcon: ({ tintColor }) => (

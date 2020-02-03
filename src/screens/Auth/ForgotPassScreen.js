@@ -6,7 +6,8 @@ import {
     Image,
     TouchableOpacity,
     ImageBackground,
-    Alert
+    Alert,
+    BackHandler
 } from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput';
 import CustomPassInput from '../../components/CustomPassInput';
@@ -129,7 +130,13 @@ export default class ForgotpassScreen extends ValidationComponent {
     changePwdType = () => {
         this.setState( state => ({showpassword: !state.showpassword}));
     }
-
+    componentDidMount(){
+        BackHandler.addEventListener('hardwareBackPress',this.handleBackButton.bind(this));
+    }
+    handleBackButton(){
+        // this.props.navigation.navigate('Forgot');
+        return true;
+    }
     render() {
         const { 
             emailAddress,
@@ -170,17 +177,17 @@ export default class ForgotpassScreen extends ValidationComponent {
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
                     }
-                    <View style={{width: "100%", height: 150}}>
+                    {/* <View style={{width: "100%", height: 150}}>
                         <Text style={{textAlign: 'center'}}>
                             Feedback textbox
                         </Text>
-                    </View> 
+                    </View>  */}
                     <GradientButton
-                        label="Back"
+                        label="home"
                         _onPress={this._back}
                     />
                     <GradientButton
-                        label="Remind"
+                        label="remind me"
                         // _onPress={this._startMakingOrder}
                     />
                 </View>
@@ -204,7 +211,7 @@ const styles = StyleSheet.create({
         top: 25
     },
     registerForm:{
-        marginTop: 100
+        marginTop: 150
     },
     registerLabel: {
         fontSize: 24,

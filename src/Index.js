@@ -1,11 +1,15 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, ActivityIndicator} from 'react-native';
+import {StyleSheet, View, ActivityIndicator,Text} from 'react-native';
 import _ from 'lodash';
+import I18n from 'react-native-i18n';
+import {getUniqueId} from 'react-native-device-info';
 import LoginScreen from './screens/Auth/LoginScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
+// import CustomDrawerContentComponent from '../components/Drawer'; 
 import HomeScreen from './screens/Home/HomeScreen';
 import LearningScreen from './screens/Home/LearningScreen';
 import SettingScreen from './screens/Setting/SettingScreen';
@@ -73,37 +77,64 @@ const DrawerRouteConfigs = {
       screen: HomeScreen,
       navigationOptions: {
         headerShown: false,
+        drawerIcon: (
+          <View style={{marginVertical: 15}}>
+            <Icon name={'hand-o-left'} size={24} />
+          </View>
+        ),
+        drawerLabel: (
+          <>
+          </>
+        ),
       },
     },
     Setting: {
       screen: SettingScreen,
       navigationOptions: {
         headerShown: false,
+        drawerLabel: (
+          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
+            settings
+          </Text>
+        )
       },
     },
     Cart: {
       screen: CartScreen,
       navigationOptions: {
         headerShown: false,
+        drawerLabel: (
+          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
+            cart
+          </Text>
+        )
       },
     },
     AboutUs: {
       screen: AboutUsScreen,
       navigationOptions: {
         headerShown: false,
+        drawerLabel: (
+          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
+            about us
+          </Text>
+        )
       },
     },
     Feedback: {
       screen: FeedbackScreen,
       navigationOptions: {
         headerShown: false,
+        drawerLabel: (
+          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
+            exit
+          </Text>
+        )
       },
     }
 };
 
 const DrawerNavigatorConfigs = {
-  // initialRouteName: 'DrawerStack',
-  // contentComponent: DrawerView,
   drawerWidth: 150,
   navigationOptions: {
     drawerLabel: "setting",
@@ -115,7 +146,6 @@ const DrawerNavigatorConfigs = {
     //   />
     // )
   }
-  // drawerType: 'slide',
 };
 
 const DrawerNavigator = createDrawerNavigator(
@@ -172,7 +202,15 @@ export default class Index extends Component {
     };
   }
  
+  async componentDidMount(){
+    global.deviceLocale = I18n.currentLocale();
+  }
   render() {
+    global.deviceLocale = I18n.currentLocale();
+    global.deviceSerial = getUniqueId();
+    console.log("currentlanguage==>",global.deviceLocale);
+    console.log("deviceSerial==>",global.deviceSerial);
+
     return (
       <View style={styles.container}>
         <AppSwitchContainer ref={ref => (this._navigator = ref)} />
@@ -185,4 +223,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  draweritemText: {
+    marginLeft: 20,
+    fontSize: 20
+  }
 });

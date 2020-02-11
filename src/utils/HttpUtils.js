@@ -1,4 +1,4 @@
-export const BASE_URL = "https://outlookguide.net/";
+export const BASE_URL = "http://outlookguide.net/";
 
 class HttpUtils {
 
@@ -10,7 +10,7 @@ class HttpUtils {
     return BASE_URL + "?cmd=OG-login";
   }
 
-  forgotpass() {
+  forgot() {
     return BASE_URL + "?cmd=OG-forgot";
   }
 

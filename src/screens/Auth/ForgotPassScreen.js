@@ -14,7 +14,8 @@ import CustomPassInput from '../../components/CustomPassInput';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import GradientButton from '../../components/GradientButton';
 import ValidationComponent from 'react-native-form-validator';
-import _ from 'lodash'
+import {usersService} from '../../services/UsersService';
+import _ from 'lodash';
 
 
 export default class ForgotpassScreen extends ValidationComponent {
@@ -30,13 +31,12 @@ export default class ForgotpassScreen extends ValidationComponent {
         this.state = {
             isChecked: false,
             name: '',
-            phone: '',
-            address: '',
-            email: '',
+            emailAddress: '',
             password: '',
-            passwordConfirm: '',
-            showpassword: true
-        }
+            showpassword: true,
+            passwordValid: null,
+        };
+        this.backhandler = null;
     }
     
     _onPressTerm = () => {
@@ -75,67 +75,68 @@ export default class ForgotpassScreen extends ValidationComponent {
     }
     _register = async () => {
         const { 
-            isChecked,
-            name,
-            phone,
-            birthday,
-            address,
-            email,
+            emailAddress,
             password,
-            passwordConfirm
+            passwordValid
         } = this.state;
 
-        if(!isChecked) {
-            Alert.alert(__APP_NAME__, 'You must accept Terms & Conditions first');
-            return
-        }
-
-        if(_.isEmpty(name) 
-            || _.isEmpty(phone)
-            || _.isEmpty(email)
-            || _.isEmpty(password)
-            || _.isEmpty(passwordConfirm)) {
+        if(
+             _.isEmpty(emailAddress)
+            || _.isEmpty(password)) {
                 Alert.alert(__APP_NAME__, 'All fields must be not empty');
                 return
-            }
-        
-        if(password !== passwordConfirm) {
-            Alert.alert(__APP_NAME__, 'Password confirm doesn\'t match');
+            }        
+        if (!passwordValid){
+            Alert.alert(__APP_NAME__, 'Please correct input type');
             return
         }
-
-        const path = '/api/v1/user'
-        const data = {
-            name,
-            phone,
-            email,
-            password,
-            address,
-            username: email,
-            birthday: birthday.format()
+    
+        let params = {
+            email: emailAddress,
+            password: password,
+            imei: 1234,
+            lang: 'en'
         }
 
-        const { response, error } = await APIClient.getInstance().jsonPOST(path, data)
-        console.log(response)
-        if(response && response.status && response.code === 200 && !_.isEmpty(response.data)) {
-            Alert.alert(__APP_NAME__, response.message);
-            userManager.updateUser(response.data)
-            this.props.navigation.navigate('App')
-        }
-        else {
-            Alert.alert(__APP_NAME__, 'Create user failed');
-        }
+        usersService.forgot(params, async function(res) {
+            // let result = res.split("|");
+            // console.log("result==>",result);
+            if(result == 'OK') {
+              let user = res[1];
+              global.initialcurUser = user;
+              Platform.select({
+                  ios: ()=>{AlertIOS.alert("Succeed")},
+                  android: ()=>{ToastAndroid.show('Succeed', ToastAndroid.SHORT)}
+              })();
+              setTimeout(() => {
+                self.setState({emailAddress: '', password: '', passwordConfirm: ''});
+              }, 600 );
+            }
+            else if (result == 'NOK'){
+                Alert.alert(__APP_NAME__, "Failed");
+                // Platform.select({
+                //     ios: ()=>{AlertIOS.alert(result[1])},
+                //     android: ()=>{ToastAndroid.show(result[1], ToastAndroid.SHORT)}
+                // })();
+            }
+          }, function (error) {
+            console.log(error);
+            }
+        );
     }
 
     changePwdType = () => {
         this.setState( state => ({showpassword: !state.showpassword}));
     }
     componentDidMount(){
-        BackHandler.addEventListener('hardwareBackPress',this.handleBackButton.bind(this));
+        this.backhandler = BackHandler.addEventListener('hardwareBackPress', ()=> {
+            this.props.navigation.navigate('Forgot');
+            return true;
+        })
+
     }
-    handleBackButton(){
-        // this.props.navigation.navigate('Forgot');
-        return true;
+    componentWillUnmount(){
+        this.backhandler.remove();
     }
     render() {
         const { 
@@ -188,7 +189,7 @@ export default class ForgotpassScreen extends ValidationComponent {
                     />
                     <GradientButton
                         label="remind me"
-                        // _onPress={this._startMakingOrder}
+                        _onPress={this._register}
                     />
                 </View>
             </KeyboardAwareScrollView>

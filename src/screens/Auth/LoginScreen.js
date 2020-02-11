@@ -7,7 +7,11 @@ import {
     TouchableOpacity,
     Alert,
     ActivityIndicator,
-    BackHandler
+    BackHandler,
+    BackAndroid,
+    ToastAndroid,
+    AlertIOS,
+    Platform
 } from 'react-native';
 import Video from 'react-native-video';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,8 +25,8 @@ import ValidationComponent from 'react-native-form-validator';
 import Orientation from 'react-native-orientation-locker';
 import _ from 'lodash';
 import { usersService } from '../../services/UsersService';
-
-class LoginScreen extends ValidationComponent {
+let self = null;
+export default class LoginScreen extends ValidationComponent {
     static navigationOptions = ({ navigation, screenProps }) => {
         return {
             headerShown: false
@@ -31,6 +35,7 @@ class LoginScreen extends ValidationComponent {
 
     constructor(props) {
         super(props);
+        self = this;
         this.state = {
             emailAddress: "",
             password: '',
@@ -38,6 +43,8 @@ class LoginScreen extends ValidationComponent {
             isLoggingIn: false,
             showpassword: true
         }
+        this.backhandler = null;
+        this.handleBackButton = this.handleBackButton.bind(this);
     }
     
     componentDidMount() {
@@ -46,22 +53,25 @@ class LoginScreen extends ValidationComponent {
             Orientation.lockToPortrait();
         });
         this.mounted = true;
-        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+        this.backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Login');
+            return true
+        });
     }
     
     componentWillUnmount() {
+        this.backhandler.remove();
+        this.focusListener.remove();
         this.mounted = false;
     }
 
     handleBackButton() {
-        // this.props.navigation.navigate('Login');
         return true;
     }
-    
-    _login = () => {
-        this.props.navigation.navigate('Home');
-    }
-
+       
+    // _login = () => {
+    //     this.props.navigation.navigate('Home');
+    // }
     _forgot = () => {
         this.props.navigation.navigate('Forgotpass');
     }
@@ -98,40 +108,55 @@ class LoginScreen extends ValidationComponent {
         this.setState( state => ({showpassword: !state.showpassword}));
     }
 
-    // _login = async () => {
-    //     const { 
-    //         email,
-    //         password
-    //     } = this.state;
+    _login = async () => {
+        const { 
+            emailAddress,
+            password,
+            passwordValid
+        } = this.state;
 
-    //     if(
-    //          _.isEmpty(email)
-    //         || _.isEmpty(password)) {
-    //             Alert.alert(__APP_NAME__, 'All fields must be not empty');
-    //             return
-    //         }        
+        if(
+             _.isEmpty(emailAddress)
+            || _.isEmpty(password)) {
+                Alert.alert(__APP_NAME__, 'All fields must be not empty');
+                return
+            }        
+        // if (!passwordValid){
+        //     Alert.alert(__APP_NAME__, 'Please correct input type');
+        //     return
+        // }
+        this.setState({isLoggingIn: true});
+        let params = {
+            email: emailAddress,
+            password: password,
+            imei: global.deviceSerial,
+            lang: global.deviceLocale
+        }
 
-    //     let params = {
-    //         email,
-    //         password,
-    //     }
+        usersService.signin(params, function(res) {
+            let result = res.split("|");
+            console.log("result==>",result);
+            if(result[0] == 'OK') {
+            //   global.initialcurUser = user;
+              Platform.select({
+                  ios: ()=>{AlertIOS.alert("Login Succeed")},
+                  android: ()=>{ToastAndroid.show('Login Succeed', ToastAndroid.SHORT)}
+              })();
+              setTimeout(() => {
+                self.setState({emailAddress: '', password: '', isLoggingIn: false});
+                self.props.navigation.navigate('Home');
+              }, 600 );
+            }
+            else if (result[0] == 'NOK'){
+                self.setState({isLoggingIn: false});
+                Alert.alert(__APP_NAME__, result[1]);
 
-    //     usersService.signin(params, async function(res) {
-    //         if(res.length > 0) {
-    //           let user = res[0];
-    //           global.initialcurUser = user;
-    //           await AsyncStorage.setItem('Email',global.initialcurUser.email);
-    //           await AsyncStorage.setItem('userId',JSON.stringify(global.initialcurUser.userId));
-    //           setTimeout(() => {
-    //             self.props.navigation.navigate('Home');;
-    //           }, 600 );
-              
-    //         }
-    //       }, function (error) {
-    //         console.log(error);
-    //         }
-    //     );
-    // }
+            }
+          }, function (error) {
+            console.log(error);
+            }
+        );
+    }
 
     render() {
         const {
@@ -272,7 +297,6 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     textor: {
-        marginVertical: 5, 
         textAlign: 'center', 
         color:"#A1A1A1", 
         fontSize: 18,
@@ -280,7 +304,7 @@ const styles = StyleSheet.create({
     },
     mainLoginContainer: {
         flex: 1,
-        marginTop: 5
+        marginTop: 3
     },
     forgotPasswordContainer: {
         paddingHorizontal: 110,
@@ -371,4 +395,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default LoginScreen
+// export default LoginScreen

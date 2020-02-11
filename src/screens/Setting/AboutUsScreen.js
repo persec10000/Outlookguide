@@ -20,9 +20,9 @@ class AboutUsScreen extends Component {
         });
     }
 
-   componentWillUnmount(){
-
-   }
+    componentWillUnmount(){
+        this.focusListener.remove();
+    }
     render() {
         return (
             <View style={{flex: 1, justifyContent: 'center'}}>

@@ -7,7 +7,10 @@ import {
     TouchableOpacity,
     ImageBackground,
     Alert,
-    BackHandler
+    BackHandler,
+    Platform,
+    AlertIOS,
+    ToastAndroid
 } from 'react-native'
 import CustomTextInput from '../../components/CustomTextInput'
 import CustomPassInput from '../../components/CustomPassInput'
@@ -38,7 +41,8 @@ export default class RegisterScreen extends ValidationComponent {
             repasswordValid: null,
             showpassword: true,
             showconfirmpassword: true
-        }
+        };
+        this.backhandler = null;
     }
     
     _onPressTerm = () => {
@@ -59,7 +63,7 @@ export default class RegisterScreen extends ValidationComponent {
 
     _onChangePasswordConfirm = (text) => {
         this.setState({ passwordConfirm: text })
-        this.handleReValidation()
+        this.handleReValidation(text)
     } 
 
     _onChangePassword = (text) => {
@@ -91,39 +95,56 @@ export default class RegisterScreen extends ValidationComponent {
     }
     _register = async () => {
         const { 
-            email,
+            emailAddress,
             password,
-            passwordConfirm
+            passwordConfirm,
+            passwordValid,
+            repasswordValid
         } = this.state;
+        console.log(emailAddress,password,passwordConfirm)
 
-        if(
-             _.isEmpty(email)
-            || _.isEmpty(password)
-            || _.isEmpty(passwordConfirm)) {
-                Alert.alert(__APP_NAME__, 'All fields must be not empty');
-                return
-            }
+        if(_.isEmpty(emailAddress)|| _.isEmpty(password)|| _.isEmpty(passwordConfirm)) {
+            Alert.alert(__APP_NAME__, 'All fields must be not empty');
+            return
+        }
         
         if(password !== passwordConfirm) {
             Alert.alert(__APP_NAME__, 'Password confirm doesn\'t match');
             return
         }
+        if (!passwordValid||!repasswordValid){
+            Alert.alert(__APP_NAME__, 'Please correct input type');
+            return
+        }
 
         let params = {
-            email,
-            password,
+            email: emailAddress,
+            password: password,
+            imei: global.deviceSerial,
+            lang: global.deviceLocale
         }
 
         usersService.signup(params, async function(res) {
-            if(res.length > 0) {
-              let user = res[0];
-              global.initialcurUser = user;
-              await AsyncStorage.setItem('Email',global.initialcurUser.email);
-              await AsyncStorage.setItem('userId',JSON.stringify(global.initialcurUser.userId));
+            let result = res.split("|");
+            console.log("result==>",result);
+            if(result[0] == 'OK') {
+            //   let user = res[1];
+            //   global.initialcurUser = user;
+              Platform.select({
+                  ios: ()=>{AlertIOS.alert("Register Succeed")},
+                  android: ()=>{ToastAndroid.show('Register Succeed', ToastAndroid.SHORT)}
+              })();
               setTimeout(() => {
-                self._back();
+                self.setState({emailAddress: '', password: '', passwordConfirm: ''});
               }, 600 );
-              
+            }
+            else if (result[0] == 'NOK'){
+                Alert.alert(__APP_NAME__, result[1]);
+                self.setState({emailAddress: '', password: '', passwordConfirm: ''});
+                // Platform.select({
+                //     ios: ()=>{AlertIOS.alert(result[1])},
+                //     android: ()=>{ToastAndroid.show(result[1], ToastAndroid.SHORT)}
+                // })();
             }
           }, function (error) {
             console.log(error);
@@ -132,12 +153,14 @@ export default class RegisterScreen extends ValidationComponent {
     }
 
     componentDidMount(){
-        BackHandler.addEventListener('hardwareBackPress',this.handleBackButton.bind(this));
+        this.backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            this.props.navigation.navigate('Register');
+            return true
+        });
     }
-    handleBackButton(){
-        console.log("Backbutton pressed")
-        // this.props.navigation.goBack(null);
-        return true;
+
+    componentWillUnmount(){
+        this.backhandler.remove();
     }
 
     changePwdType = () => {
@@ -204,7 +227,7 @@ export default class RegisterScreen extends ValidationComponent {
                     />
                     {repasswordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
-                            Password must be contain at least one uppercase, number, lowercase and character
+                            Confirm Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
                     }
                     <GradientButton
@@ -213,7 +236,7 @@ export default class RegisterScreen extends ValidationComponent {
                     /> 
                     <GradientButton
                         label="sign up"
-                        // _onPress={this._startMakingOrder}
+                        _onPress={this._register}
                     />
                 </View>
             </KeyboardAwareScrollView>

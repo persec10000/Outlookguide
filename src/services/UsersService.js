@@ -5,8 +5,10 @@ class UsersService {
   signup(params, cbSuccess, cbError) {
     let url = httpUtils.signup();
     url = url + 
-      "&user=" + params.Email +
-      "&pass=" + params.Password;
+      "&user=" + params.email +
+      "&pass=" + params.password +
+      "&imei=" + params.imei +
+      "&lang=" + params.lang
     fetch(url, {
       method: 'POST',
       headers: {
@@ -14,9 +16,9 @@ class UsersService {
         'Content-Type': 'application/json',
       },
     }, 300000)
-      .then(response => response.json())
-      .then(resJson => {
-        cbSuccess(resJson);
+      .then(response => {return response.text()})
+      .then((text) => {
+        cbSuccess(text);
       })
       .catch((error) => {
         cbError(error);
@@ -27,7 +29,9 @@ class UsersService {
     let url = httpUtils.signin();
     url = url + 
       "&user=" + params.email +
-      "&pass=" + params.password;
+      "&pass=" + params.password +
+      "&imei=" + params.imei +
+      "&lang=" + params.lang
     fetch(url, {
       method: 'POST',
       headers: {
@@ -35,19 +39,20 @@ class UsersService {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
-      .then(resJson => {
-        cbSuccess(resJson);
+      .then(response => {return response.text()})
+      .then((text) => {
+        cbSuccess(text);
       })
       .catch((error) => {
         cbError(error);
       });
   }
 
-  forgotpass(params, cbSuccess, cbError) {
-    let url = httpUtils.forgotpass();
+  forgot(params, cbSuccess, cbError) {
+    let url = httpUtils.forgot();
     url = url + 
-      "&user=" + params.email 
+    "&user=" + params.email +
+    "&imei=" + params.imei
     fetch(url, {
       method: 'POST',
       headers: {
@@ -55,9 +60,9 @@ class UsersService {
         'Content-Type': 'application/json',
       },
     })
-      .then(response => response.json())
-      .then(resJson => {
-        cbSuccess(resJson);
+      .then(response =>{return response.text()})
+      .then((text) => {
+        cbSuccess(text);
       })
       .catch((error) => {
         cbError(error);

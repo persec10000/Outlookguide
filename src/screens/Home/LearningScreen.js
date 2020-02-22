@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet,Image, ImageBackground,TouchableOpacity, Platform, AlertIOS, ToastAndroid } from 'react-native'
 import Orientation from 'react-native-orientation-locker';
 import Icon from 'react-native-vector-icons/Octicons';
+import {Images} from '../../themes'
 
 class LearningScreen extends Component { 
     constructor(props){
@@ -28,9 +29,9 @@ class LearningScreen extends Component {
     render() {
         const {isGuide} = this.state
         return (
-            <ImageBackground source={require('../../resources/images/Outlook.png')} style={{width: '100%', height: '100%'}}>
+            <ImageBackground source={Images.outlook} style={{width: '100%', height: '100%'}}>
                 <View>
-                    <Image source={require('../../resources/images/applogo.png')} style={{position: 'absolute', top: 5, left: 10}}/>
+                    <Image source={Images.applogo} style={{position: 'absolute', top: 5, left: 10}}/>
                 </View>
                 <View style={{position:'absolute', top: 10, right: 10}}>
                     <Icon

@@ -15,6 +15,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import GradientButton from '../../components/GradientButton';
 import ValidationComponent from 'react-native-form-validator';
 import {usersService} from '../../services/UsersService';
+import {Images} from '../../themes'
 import _ from 'lodash';
 
 
@@ -147,7 +148,7 @@ export default class ForgotpassScreen extends ValidationComponent {
         return (
             <KeyboardAwareScrollView style={styles.container}>
                 <Image
-                    source={require('../../resources/images/applogo.png')}
+                    source={Images.applogo}
                     style={styles.applogo}
                 />
                 <View style={styles.registerForm}>

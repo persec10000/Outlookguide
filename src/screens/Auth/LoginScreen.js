@@ -21,7 +21,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import CustomTextInput from '../../components/CustomTextInput';
 import CustomPassInput from '../../components/CustomPassInput';
 import ValidationComponent from 'react-native-form-validator';
-
+import {Images} from '../../themes'
 import Orientation from 'react-native-orientation-locker';
 import _ from 'lodash';
 import { usersService } from '../../services/UsersService';
@@ -109,6 +109,8 @@ export default class LoginScreen extends ValidationComponent {
     }
 
     _login = async () => {
+        this.props.navigation.navigate('Home');
+        return
         const { 
             emailAddress,
             password,
@@ -137,7 +139,7 @@ export default class LoginScreen extends ValidationComponent {
             let result = res.split("|");
             console.log("result==>",result);
             if(result[0] == 'OK') {
-            //   global.initialcurUser = user;
+              global.sessionId = result[1];
               Platform.select({
                   ios: ()=>{AlertIOS.alert("Login Succeed")},
                   android: ()=>{ToastAndroid.show('Login Succeed', ToastAndroid.SHORT)}
@@ -170,10 +172,12 @@ export default class LoginScreen extends ValidationComponent {
             <KeyboardAwareScrollView 
                 style={styles.container}>
                 <Image 
-                    source={require('../../resources/images/applogo.png')} 
+                    source={Images.applogo}
                     style={styles.appLogo}/>
                 <View style={styles.appimage}>                  
-                    <Video source={require('../../resources/images/OutlookGuide.mov')} 
+                    <Video
+                    // source={{uri: 'http://172.31.30.171/output/1-48-0.mp4'}} 
+                        source={require('../../resources/images/OutlookGuide.mov')} 
                         ref={(ref) => {
                             this.player = ref
                         }}                                     

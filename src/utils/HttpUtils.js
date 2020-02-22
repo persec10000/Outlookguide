@@ -1,4 +1,4 @@
-export const BASE_URL = "http://outlookguide.net/";
+export const BASE_URL = "https://outlookguide.net/";
 
 class HttpUtils {
 

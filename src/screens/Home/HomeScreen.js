@@ -1,9 +1,12 @@
 import React, { PureComponent  } from 'react'
-import { View, Text, StyleSheet,Image, ImageBackground,TouchableOpacity, PermissionsAndroid, Alert, Platform, AlertIOS, ToastAndroid, BackHandler, Dimensions } from 'react-native';
+import { View, Text, StyleSheet,Image, ImageBackground,Dimension,TouchableOpacity, PermissionsAndroid, Alert, Platform, AlertIOS, ToastAndroid, BackHandler, Dimensions } from 'react-native';
 import GradientSmallButton from '../../components/GradientSmallButton';
 import Orientation from 'react-native-orientation-locker';
+import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/Octicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {DrawerActions} from 'react-navigation-drawer'
+import {Images} from '../../themes'
 import SwitchToggle from '@dooboo-ui/native-switch-toggle';
 import {RNCamera} from 'react-native-camera';
 import {NodeCameraView, NodePlayerView} from 'react-native-nodemediaclient';
@@ -27,8 +30,6 @@ class HomeScreen extends PureComponent  {
         this.backhandler = null;
         self = this;
     }
-
-    
 
     requestCameraPermission = async() => {
       try {
@@ -55,10 +56,12 @@ class HomeScreen extends PureComponent  {
     }
 
     componentDidMount(){
-        this.focusListener = this.props.navigation.addListener("didFocus", () => {
-            self.setState({ismount: true});
-            console.log("hello workd")
-            Orientation.lockToLandscape();
+        this.focusListener = this.props.navigation.addListener("didFocus", async() => {
+            await Orientation.lockToLandscape();
+            this.setState({ismount: true});
+        });
+        this.didblurListener = this.props.navigation.addListener("didBlur", () => {
+            this.setState({ismount: false});
         });
         this.backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
             this.props.navigation.navigate('Home');
@@ -67,13 +70,15 @@ class HomeScreen extends PureComponent  {
     }
 
     componentWillUnmount(){
+        this.setState({ismount: false})
         this.backhandler.remove();
         this.focusListener.remove();
     }
 
     Guide = () => {
-        this.vb.start();
-        this.setState({isGuide:true});
+        this.setState({isGuide:true}, ()=>{
+            self.vb.start();
+        });
     }
     switch = () => {
         this.vb.switchCamera();
@@ -88,27 +93,16 @@ class HomeScreen extends PureComponent  {
         //     ios: () => { AlertIOS.alert('Recording start'); },
         //     android: () => { ToastAndroid.show('Recording start', ToastAndroid.SHORT); }
         // })();
-        this.vb.start();
         this.setState({ recording: true });
+        this.vb.start();
     }
 
     stopRecording = () => {
         this.setState({recording: false});
     }
 
-    Exit = () => {
-        Alert.alert(
-            'Outlook Guide',
-            'Are you sure you want to exit?',
-            [
-                { text: 'Cancel' },
-                { text: 'OK', onPress: ()=>{
-                    BackHandler.exitApp()
-                }},
-            ],
-            { cancelable: false }
-        )
-        return true;
+    Library = () => {
+        this.props.navigation.navigate('Library');
     }
 
     Stop = () => {
@@ -116,12 +110,11 @@ class HomeScreen extends PureComponent  {
         this.setState({isGuide:false});
     }
     toggleDrawer = () => {
-        this.props.navigation.dispatch(DrawerActions.toggleDrawer());
+        this.props.navigation.dispatch(DrawerActions.openDrawer());
     }   
    
     render() {
-        console.log("width======>", Width);
-        console.log("height======>", Height);
+        console.log("state==",this.state.ismount)
         const {isGuide, switchOn2, ismount,recording} = this.state;
         this.requestCameraPermission();
         let readbutton = (
@@ -147,7 +140,7 @@ class HomeScreen extends PureComponent  {
         else {
         return (
            <View style={styles.container}>
-               {this.props.isFocused&&
+               {(isGuide||recording)?
                 <NodeCameraView 
                     style={{ height: "100%" }}
                     ref={(vb) => { this.vb = vb }}
@@ -157,6 +150,19 @@ class HomeScreen extends PureComponent  {
                     video={{ preset: 24, bitrate: 400000, profile: 2, fps: 30, videoFrontMirror: true }}
                     autopreview={true}
                 />
+                :
+                <Video
+                // source={{uri: 'http://172.31.30.171/output/1-48-0.mp4'}} 
+                    source={require('../../resources/images/OutlookGuide.mov')} 
+                    ref={(ref) => {
+                        this.player = ref
+                    }}                                     
+                    onBuffer={this.onBuffer}               
+                    onError={this.videoError}          
+                    style={styles.backgroundVideo}
+                    repeat={true}
+                    fullscreen={true}
+                    resizeMode={'cover'} />
                }
                {/* <TouchableOpacity
                     onPress={() => {
@@ -193,7 +199,7 @@ class HomeScreen extends PureComponent  {
                     }}
                 />
                 } */}
-                <Image source={require('../../resources/images/applogo.png')} style={{position: 'absolute', top: -10, left: 0}}/>
+                <Image source={Images.applogo} style={{position: 'absolute', top: -10, left: 0}}/>
                 <TouchableOpacity onPress={()=>this.toggleDrawer()} style={{position:'absolute', top: 10, right: 10}}>
                     <Icon
                         name="settings"
@@ -231,12 +237,22 @@ class HomeScreen extends PureComponent  {
                     </Text>
                 </View>
                 }
+                {(isGuide||recording) &&
                 <View style={styles.switchButton}>
-                    <GradientSmallButton
-                        label="Switch"
-                        _onPress={this.switch}
-                    />
+                    <TouchableOpacity onPress={this.switch} style={styles.button}>
+                        <FontAwesome
+                            name='microphone'
+                            color='white'
+                            size={27}
+                            style={{marginLeft: 18}}>
+
+                        </FontAwesome>
+                        {/* <Text>
+                            Switch
+                        </Text> */}
+                    </TouchableOpacity>
                 </View>
+                }
                 <View style={{flexDirection: 'row', position:'absolute', bottom:20, right: 10}}>
                     {!isGuide&&
                     <>
@@ -252,8 +268,8 @@ class HomeScreen extends PureComponent  {
                             />
                             :
                             <GradientSmallButton
-                                label="Exit"
-                                _onPress={this.Exit}
+                                label="Library"
+                                _onPress={this.Library}
                             />
                             }
                         </>
@@ -276,26 +292,32 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         // backgroundColor: 'black',
     },
+    backgroundVideo: {
+        // position: 'absolute',
+        width: "100%",
+        height: "100%"
+    },
     iconContainer: {
         alignItems: 'center',
         justifyContent: 'center',
     },
     button: {
         justifyContent:'center',
-        width: 54, 
-        height: 54, 
+        alignContent:'center',
+        width: 55, 
+        height: 55, 
         marginHorizontal: 40,
         borderRadius: 27,
         transform: [
-            {scaleX: 2}
+            {scaleX: 1.8}
         ],
-        backgroundColor:'white',
+        backgroundColor:'red',
         opacity: 0.5
     },
     switchButton: {
         flexDirection: 'row',
         position:'absolute',
-        bottom:20, 
+        bottom:15, 
         right: 0, 
         left: 0, 
         alignItems: 'center', 

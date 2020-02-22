@@ -14,10 +14,15 @@ import HomeScreen from './screens/Home/HomeScreen';
 import LearningScreen from './screens/Home/LearningScreen';
 import SettingScreen from './screens/Setting/SettingScreen';
 import CartScreen from './screens/Setting/CartScreen';
-import FeedbackScreen from './screens/Setting/FeedbackScreen';
+import FeedbackScreen from './screens/Home/LibraryScreen';
 import AboutUsScreen from './screens/Setting/AboutUsScreen';
 import AsyncStorage from '@react-native-community/async-storage';
 import ForgotPassScreen from './screens/Auth/ForgotPassScreen';
+import LibraryScreen from './screens/Home/LibraryScreen';
+import ViewFile from './screens/Home/ViewFile'
+import Drawer from './components/Drawer'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import SubLibraryScreen from './screens/Home/SubLibraryScreen';
 console.disableYellowBox = true;
 
 const MainAppRouteConfigs = {
@@ -32,6 +37,24 @@ const MainAppRouteConfigs = {
     navigationOptions: {
       headerShown: false,
     },
+  },
+  Library: {
+    screen: LibraryScreen,
+    navigationOptions: {
+      headerShown: false,
+    }
+  },
+  SubLibrary: {
+    screen: SubLibraryScreen,
+    navigationOptions: {
+      headerShown: false
+    }
+  },
+  ViewFile: {
+    screen: ViewFile,
+    navigationOptions: {
+      headerShown: false
+    }
   }
 };
 
@@ -74,78 +97,22 @@ const AuthNavigator = createStackNavigator(
 const AuthContainer = createAppContainer(AuthNavigator);
 const DrawerRouteConfigs = {
     Home: {
-      screen: HomeScreen,
-      navigationOptions: {
-        headerShown: false,
-        drawerIcon: (
-          <View style={{marginVertical: 15}}>
-            <Icon name={'hand-o-left'} size={24} />
-          </View>
-        ),
-        drawerLabel: (
-          <>
-          </>
-        ),
-      },
+      screen: HomeScreen,     
     },
     Setting: {
       screen: SettingScreen,
-      navigationOptions: {
-        headerShown: false,
-        drawerLabel: (
-          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
-            settings
-          </Text>
-        )
-      },
     },
     Cart: {
       screen: CartScreen,
-      navigationOptions: {
-        headerShown: false,
-        drawerLabel: (
-          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
-            cart
-          </Text>
-        )
-      },
     },
     AboutUs: {
       screen: AboutUsScreen,
-      navigationOptions: {
-        headerShown: false,
-        drawerLabel: (
-          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
-            about us
-          </Text>
-        )
-      },
-    },
-    Feedback: {
-      screen: FeedbackScreen,
-      navigationOptions: {
-        headerShown: false,
-        drawerLabel: (
-          <Text style={{fontSize: 16, marginLeft: 15, marginVertical: 15}}>
-            exit
-          </Text>
-        )
-      },
     }
 };
 
 const DrawerNavigatorConfigs = {
   drawerWidth: 150,
-  navigationOptions: {
-    drawerLabel: "setting",
-    // drawerIcon: ({ tintColor }) => (
-    //   <Image
-    //     source={require("../assets/icons/home.png")}
-    //     resizeMode="contain"
-    //     style={{ width: 20, height: 20, tintColor: tintColor }}
-    //   />
-    // )
-  }
+  contentComponent: Drawer,
 };
 
 const DrawerNavigator = createDrawerNavigator(

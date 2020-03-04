@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
-import {StyleSheet, View, ActivityIndicator,Text} from 'react-native';
+import {StyleSheet, View, ActivityIndicator,Text, PermissionsAndroid} from 'react-native';
 import _ from 'lodash';
 import I18n from 'react-native-i18n';
 import {getUniqueId} from 'react-native-device-info';
+import IMEI  from 'react-native-imei';
 import LoginScreen from './screens/Auth/LoginScreen';
+import ActivateScreen from './screens/Auth/ActivateScreen';
 import RegisterScreen from './screens/Auth/RegisterScreen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
@@ -77,6 +79,9 @@ const AuthRouteConfigs = {
   },
   Forgotpass: {
     screen: ForgotPassScreen
+  },
+  Activate: {
+    screen: ActivateScreen
   },
   MainScreen: {
     screen: MainAppContainer,
@@ -172,12 +177,12 @@ export default class Index extends Component {
   async componentDidMount(){
     global.deviceLocale = I18n.currentLocale();
   }
+ 
   render() {
     global.deviceLocale = I18n.currentLocale();
     global.deviceSerial = getUniqueId();
     console.log("currentlanguage==>",global.deviceLocale);
     console.log("deviceSerial==>",global.deviceSerial);
-
     return (
       <View style={styles.container}>
         <AppSwitchContainer ref={ref => (this._navigator = ref)} />

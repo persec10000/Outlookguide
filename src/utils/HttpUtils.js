@@ -14,6 +14,9 @@ class HttpUtils {
     return BASE_URL + "?cmd=OG-forgot";
   }
 
+  activate() {
+    return BASE_URL + "?cmd=OG-activate"
+  }
 
   // Headers ======================
   getHeaders() {

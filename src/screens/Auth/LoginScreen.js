@@ -68,10 +68,7 @@ export default class LoginScreen extends ValidationComponent {
     handleBackButton() {
         return true;
     }
-       
-    // _login = () => {
-    //     this.props.navigation.navigate('Home');
-    // }
+   
     _forgot = () => {
         this.props.navigation.navigate('Forgotpass');
     }
@@ -91,18 +88,18 @@ export default class LoginScreen extends ValidationComponent {
 
     _onChangePassword = (text) => {
         this.setState({ password: text });
-        this.handleValidation(text);
+        // this.handleValidation(text);
     }
 
-    handleValidation = (value) => {
-        let reg = /(?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/
-        if (reg.test(value)){
-            this.setState({passwordValid: true});
-        }
-        else {
-            this.setState({passwordValid: false});
-        }
-    }
+    // handleValidation = (value) => {
+    //     let reg = /(?=^.{8,255}$)((?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))^.*/
+    //     if (reg.test(value)){
+    //         this.setState({passwordValid: true});
+    //     }
+    //     else {
+    //         this.setState({passwordValid: false});
+    //     }
+    // }
 
     changePwdType = () => {
         this.setState( state => ({showpassword: !state.showpassword}));
@@ -110,7 +107,7 @@ export default class LoginScreen extends ValidationComponent {
 
     _login = async () => {
         this.props.navigation.navigate('Home');
-        return
+        return;
         const { 
             emailAddress,
             password,
@@ -130,8 +127,8 @@ export default class LoginScreen extends ValidationComponent {
         this.setState({isLoggingIn: true});
         let params = {
             email: emailAddress,
-            password: password,
-            imei: global.deviceSerial,
+            password: encodeURIComponent(password),
+            device_id: global.deviceSerial,
             lang: global.deviceLocale
         }
 
@@ -226,7 +223,7 @@ export default class LoginScreen extends ValidationComponent {
                         placeholderTextColor="#707070"
                         onChangeText={this._onChangeEmail}
                     />   
-                    {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }                
+                    {/* {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }                 */}
                     <CustomPassInput 
                         inputWrapperStyle={{
                             marginBottom: 5
@@ -238,11 +235,11 @@ export default class LoginScreen extends ValidationComponent {
                         onChangeText={this._onChangePassword}
                         iconPress={this.changePwdType}
                     />
-                    {passwordValid == false &&
+                    {/* {passwordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
-                    }
+                    } */}
                     <View style={styles.actionContainer}>
                         {isLoggingIn 
                             ?
@@ -310,16 +307,6 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: 3
     },
-    forgotPasswordContainer: {
-        paddingHorizontal: 110,
-        alignItems: 'center'
-    },
-    forgotPasswordText: {
-        fontSize: 16,
-        letterSpacing: 0,
-        color: '#707070',
-        textDecorationLine: 'underline'
-    },
     actionContainer: {
         marginTop: 20,
         alignItems: 'center'
@@ -335,20 +322,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    loginText: {
-        fontSize: 20,
-        color: '#fff',
-        letterSpacing: 0
-    },
-    createAccountBtn: {
-        marginTop: 10,
-        width: 265,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#888888',
-    },
     signup: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -360,15 +333,6 @@ const styles = StyleSheet.create({
         color: '#707070',
         fontSize: 20,
         textDecorationLine: 'underline'
-    },
-    signInOptionContainer: {
-        marginVertical: 16,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    signInOption: {
-        marginHorizontal: 2.5
     },
     buttons: {
         marginHorizontal: 40,

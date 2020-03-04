@@ -7,7 +7,8 @@ class UsersService {
     url = url + 
       "&user=" + params.email +
       "&pass=" + params.password +
-      "&imei=" + params.imei +
+      "&telno=" + params.telno +
+      "&device_id=" + params.device_id +
       "&lang=" + params.lang
     fetch(url, {
       method: 'POST',
@@ -30,7 +31,7 @@ class UsersService {
     url = url + 
       "&user=" + params.email +
       "&pass=" + params.password +
-      "&imei=" + params.imei +
+      "&device_id=" + params.device_id +
       "&lang=" + params.lang
     fetch(url, {
       method: 'POST',
@@ -47,12 +48,33 @@ class UsersService {
         cbError(error);
       });
   }
-
+  activate(params, cbSuccess, cbError) {
+    let url = httpUtils.activate();
+    url = url + 
+      "&user=" + params.email +
+      "&pass=" + params.password +
+      "&token=" + params.token +
+      "&device_id=" + params.device_id
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {return response.text()})
+      .then((text) => {
+        cbSuccess(text);
+      })
+      .catch((error) => {
+        cbError(error);
+      });
+  }
   forgot(params, cbSuccess, cbError) {
     let url = httpUtils.forgot();
     url = url + 
     "&user=" + params.email +
-    "&imei=" + params.imei
+    "&device_id=" + params.device_id
     fetch(url, {
       method: 'POST',
       headers: {

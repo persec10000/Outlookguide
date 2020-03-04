@@ -4,10 +4,12 @@ import {
     View,
     Text,
     Image,
-    TouchableOpacity,
-    ImageBackground,
     Alert,
-    BackHandler
+    BackHandler,
+    Platform,
+    ToastAndroid,
+    AlertIOS,
+    ActivityIndicator
 } from 'react-native';
 import CustomTextInput from '../../components/CustomTextInput';
 import CustomPassInput from '../../components/CustomPassInput';
@@ -15,10 +17,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import GradientButton from '../../components/GradientButton';
 import ValidationComponent from 'react-native-form-validator';
 import {usersService} from '../../services/UsersService';
+import LinearGradient from 'react-native-linear-gradient';
 import {Images} from '../../themes'
 import _ from 'lodash';
 
-
+let self = null;
 export default class ForgotpassScreen extends ValidationComponent {
     static navigationOptions = ({navigation, navigationOptions}) => {
         return {
@@ -33,10 +36,9 @@ export default class ForgotpassScreen extends ValidationComponent {
             isChecked: false,
             name: '',
             emailAddress: '',
-            password: '',
-            showpassword: true,
-            passwordValid: null,
+            isForgot: false
         };
+        self = this;
         this.backhandler = null;
     }
     
@@ -77,44 +79,35 @@ export default class ForgotpassScreen extends ValidationComponent {
     _register = async () => {
         const { 
             emailAddress,
-            password,
-            passwordValid
         } = this.state;
 
-        if(
-             _.isEmpty(emailAddress)
-            || _.isEmpty(password)) {
+        if(_.isEmpty(emailAddress))
+            {
                 Alert.alert(__APP_NAME__, 'All fields must be not empty');
                 return
             }        
-        if (!passwordValid){
-            Alert.alert(__APP_NAME__, 'Please correct input type');
-            return
-        }
-    
+       
         let params = {
             email: emailAddress,
-            password: password,
-            imei: 1234,
-            lang: 'en'
+            device_id: global.device_id,
         }
-
+        this.setState({isForgot: true})
         usersService.forgot(params, async function(res) {
-            // let result = res.split("|");
-            // console.log("result==>",result);
-            if(result == 'OK') {
-              let user = res[1];
-              global.initialcurUser = user;
+            let result = res.split("|");
+            console.log("result==>",result);
+            if(result[0] == 'OK') {
               Platform.select({
-                  ios: ()=>{AlertIOS.alert("Succeed")},
-                  android: ()=>{ToastAndroid.show('Succeed', ToastAndroid.SHORT)}
+                  ios: ()=>{AlertIOS.alert("Validated User")},
+                  android: ()=>{ToastAndroid.show('Validated User', ToastAndroid.SHORT)}
               })();
               setTimeout(() => {
-                self.setState({emailAddress: '', password: '', passwordConfirm: ''});
-              }, 600 );
+                  self.setState({emailAddress: '', isForgot: false})
+                  self.props.navigation.navigate('Login');
+              }, 800);             
             }
-            else if (result == 'NOK'){
-                Alert.alert(__APP_NAME__, "Failed");
+            else if (result[0] == 'NOK'){
+                self.setState({emailAddress: '', isForgot: false})
+                Alert.alert(__APP_NAME__, result[1]);
                 // Platform.select({
                 //     ios: ()=>{AlertIOS.alert(result[1])},
                 //     android: ()=>{ToastAndroid.show(result[1], ToastAndroid.SHORT)}
@@ -126,9 +119,7 @@ export default class ForgotpassScreen extends ValidationComponent {
         );
     }
 
-    changePwdType = () => {
-        this.setState( state => ({showpassword: !state.showpassword}));
-    }
+  
     componentDidMount(){
         this.backhandler = BackHandler.addEventListener('hardwareBackPress', ()=> {
             this.props.navigation.navigate('Forgot');
@@ -142,8 +133,7 @@ export default class ForgotpassScreen extends ValidationComponent {
     render() {
         const { 
             emailAddress,
-            password,
-            passwordValid,
+            isForgot
         } = this.state;
         return (
             <KeyboardAwareScrollView style={styles.container}>
@@ -155,15 +145,15 @@ export default class ForgotpassScreen extends ValidationComponent {
                     <Text style={styles.registerLabel}>Forgot Password</Text>
                     <CustomTextInput 
                         inputWrapperStyle={{
-                            marginBottom: 5
+                            marginBottom: 30
                         }}
                         value={emailAddress}
                         placeholder="Username"
                         placeholderTextColor="#707070"
                         onChangeText={this._onChangeEmail}
                     />   
-                    {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }
-                    <CustomPassInput 
+                    {/* {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) } */}
+                    {/* <CustomPassInput 
                         inputWrapperStyle={{
                             marginBottom: 5
                         }}
@@ -178,20 +168,26 @@ export default class ForgotpassScreen extends ValidationComponent {
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
-                    }
-                    {/* <View style={{width: "100%", height: 150}}>
-                        <Text style={{textAlign: 'center'}}>
-                            Feedback textbox
-                        </Text>
-                    </View>  */}
+                    } */}
                     <GradientButton
                         label="home"
                         _onPress={this._back}
                     />
-                    <GradientButton
-                        label="remind me"
-                        _onPress={this._register}
-                    />
+                    {isForgot 
+                        ?
+                        <View style={{alignItems:'center'}}>
+                            <View style={styles.loginBtn}>
+                                <LinearGradient colors={['#E8222B', '#141414']} style={styles.loginBtnBackground}>
+                                    <ActivityIndicator color='#fff'/>
+                                </LinearGradient>
+                            </View>
+                        </View>
+                        : 
+                        <GradientButton
+                            label="remind me"
+                            _onPress={this._register}
+                        />
+                    }
                 </View>
             </KeyboardAwareScrollView>
         )
@@ -243,6 +239,8 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     loginBtn: {
+        // alignItems: 'center',
+        marginTop: 10,
         width: 280,
         height: 55,
     },

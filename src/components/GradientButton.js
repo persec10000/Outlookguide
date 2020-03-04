@@ -5,7 +5,6 @@ import LinearGradient from 'react-native-linear-gradient';
 export default class GradientButton extends Component {
   render() {
     const {label, _onPress, buttonsize} = this.props;
-    console.log("buttonsize==",buttonsize)
     return (
       <View style={styles.gradientBtnWrapper}>
         <TouchableOpacity onPress={_onPress} style={styles.gradientBtn}>

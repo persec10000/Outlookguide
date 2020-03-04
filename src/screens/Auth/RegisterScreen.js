@@ -4,19 +4,19 @@ import {
     View,
     Text,
     Image,
-    TouchableOpacity,
-    ImageBackground,
     Alert,
     BackHandler,
     Platform,
     AlertIOS,
-    ToastAndroid
-} from 'react-native'
-import CustomTextInput from '../../components/CustomTextInput'
-import CustomPassInput from '../../components/CustomPassInput'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import GradientButton from '../../components/GradientButton'
+    ToastAndroid,
+    ActivityIndicator
+} from 'react-native';
+import CustomTextInput from '../../components/CustomTextInput';
+import CustomPassInput from '../../components/CustomPassInput';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import GradientButton from '../../components/GradientButton';
 import ValidationComponent from 'react-native-form-validator';
+import LinearGradient from 'react-native-linear-gradient';
 import { usersService } from '../../services/UsersService';
 import {Images} from '../../themes'
 
@@ -28,7 +28,7 @@ export default class RegisterScreen extends ValidationComponent {
         return {
          headerShown: false
         };
-      };
+    };
     
     constructor(props) {
         super(props)
@@ -36,12 +36,15 @@ export default class RegisterScreen extends ValidationComponent {
         this.state = {
             isChecked: false,
             emailAddress: '',
+            telno: '',
             password: '',
             passwordConfirm: '',
+            telnoValid: null,
             passwordValid: null,
             repasswordValid: null,
             showpassword: true,
-            showconfirmpassword: true
+            showconfirmpassword: true,
+            isSignUp: false
         };
         this.backhandler = null;
     }
@@ -63,13 +66,28 @@ export default class RegisterScreen extends ValidationComponent {
     }
 
     _onChangePasswordConfirm = (text) => {
-        this.setState({ passwordConfirm: text })
-        this.handleReValidation(text)
+        this.setState({ passwordConfirm: text });
+        // this.handleReValidation(text);
     } 
 
     _onChangePassword = (text) => {
-        this.setState({ password: text })
-        this.handleValidation(text);
+        this.setState({ password: text });
+        // this.handleValidation(text);
+    }
+
+    _onChangeTelno = (text) => {
+        this.setState({telno: text});
+        // this.handletelnoValidation(text);
+    }
+
+    handletelnoValidation = (value) => {
+        let reg = /^[0-9\b]+$/
+        if (reg.test(value)){
+            this.setState({telnoValid: true})
+        }
+        else {
+            this.setState({telnoValid: false})
+        }
     }
 
     handleValidation = (value) => {
@@ -97,31 +115,27 @@ export default class RegisterScreen extends ValidationComponent {
     _register = async () => {
         const { 
             emailAddress,
+            telno,
             password,
             passwordConfirm,
             passwordValid,
             repasswordValid
         } = this.state;
-        console.log(emailAddress,password,passwordConfirm)
-
         if(_.isEmpty(emailAddress)|| _.isEmpty(password)|| _.isEmpty(passwordConfirm)) {
             Alert.alert(__APP_NAME__, 'All fields must be not empty');
             return
         }
-        
         if(password !== passwordConfirm) {
             Alert.alert(__APP_NAME__, 'Password confirm doesn\'t match');
             return
         }
-        if (!passwordValid||!repasswordValid){
-            Alert.alert(__APP_NAME__, 'Please correct input type');
-            return
-        }
-
+      
+        this.setState({isSignUp: true})
         let params = {
             email: emailAddress,
-            password: password,
-            imei: global.deviceSerial,
+            password: encodeURIComponent(password),
+            telno: telno,
+            device_id: global.deviceSerial,
             lang: global.deviceLocale
         }
 
@@ -129,19 +143,22 @@ export default class RegisterScreen extends ValidationComponent {
             let result = res.split("|");
             console.log("result==>",result);
             if(result[0] == 'OK') {
-            //   let user = res[1];
-            //   global.initialcurUser = user;
-              Platform.select({
-                  ios: ()=>{AlertIOS.alert("Register Succeed")},
-                  android: ()=>{ToastAndroid.show('Register Succeed', ToastAndroid.SHORT)}
-              })();
-              setTimeout(() => {
-                self.setState({emailAddress: '', password: '', passwordConfirm: ''});
-              }, 600 );
-            }
+            global.token = result[1];
+            global.emailAddress = emailAddress;
+            global.password = encodeURIComponent(password);
+            Platform.select({
+                    ios: ()=>{AlertIOS.alert("Register Succeed")},
+                    android: ()=>{ToastAndroid.show('Register Succeed', ToastAndroid.SHORT)}
+                })();
+                setTimeout(() => {
+                self.setState({emailAddress: '', password: '', passwordConfirm: '', telno: '', isSignUp: false}, ()=> {
+                    self.props.navigation.navigate('Activate');
+                });
+            }, 800 );
+        }
             else if (result[0] == 'NOK'){
                 Alert.alert(__APP_NAME__, result[1]);
-                self.setState({emailAddress: '', password: '', passwordConfirm: ''});
+                self.setState({emailAddress: '', password: '', passwordConfirm: '', telno: '', isSignUp: false});
                 // Platform.select({
                 //     ios: ()=>{AlertIOS.alert(result[1])},
                 //     android: ()=>{ToastAndroid.show(result[1], ToastAndroid.SHORT)}
@@ -172,14 +189,16 @@ export default class RegisterScreen extends ValidationComponent {
         this.setState( state => ({showconfirmpassword: !state.showconfirmpassword}));
     }
 
-    
     render() {
         const { 
             emailAddress,
+            telno,
             password,
             passwordConfirm,
             passwordValid,
-            repasswordValid
+            repasswordValid,
+            isSignUp,
+            telnoValid
         } = this.state;
         return (
             <KeyboardAwareScrollView style={styles.container}>
@@ -188,17 +207,31 @@ export default class RegisterScreen extends ValidationComponent {
                     style={styles.applogo}
                 />
                 <View style={styles.registerForm}>
-                    <Text style={styles.registerLabel}>Sign  Up</Text>
+                    <Text style={styles.registerLabel}>SignUp</Text>
                     <CustomTextInput 
                         inputWrapperStyle={{
                             marginBottom: 5
                         }}
                         value={emailAddress}
-                        placeholder="Username"
+                        placeholder="Email"
                         placeholderTextColor="#707070"
                         onChangeText={this._onChangeEmail}
                     />   
-                    {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) }
+                    {/* {this.isFieldInError('emailAddress') && this.getErrorsInField('emailAddress').map(errorMessage => <Text style={{color:'red', textAlign: 'center'}}>{errorMessage}</Text>) } */}
+                    <CustomTextInput 
+                        inputWrapperStyle={{
+                            marginBottom: 5
+                        }}
+                        value={telno}
+                        placeholder="Phone Number"
+                        placeholderTextColor="#707070"
+                        onChangeText={this._onChangeTelno}
+                    />
+                    {/* {telnoValid == false &&
+                        <Text style={{color:'red', textAlign: 'center'}}>
+                            Phone Number must be contain only number
+                        </Text>
+                    }    */}
                     <CustomPassInput 
                         inputWrapperStyle={{
                             marginBottom: 5
@@ -210,14 +243,14 @@ export default class RegisterScreen extends ValidationComponent {
                         onChangeText={this._onChangePassword}
                         iconPress={this.changePwdType}
                     />
-                    {passwordValid == false &&
+                    {/* {passwordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
-                    }
+                    } */}
                     <CustomPassInput 
                         inputWrapperStyle={{
-                            marginBottom: 5
+                            marginBottom: 20
                         }}
                         value={passwordConfirm}
                         placeholder="Re-Enter Password"
@@ -226,19 +259,30 @@ export default class RegisterScreen extends ValidationComponent {
                         onChangeText={this._onChangePasswordConfirm}
                         iconPress={this.changePwdConfirmType}
                     />
-                    {repasswordValid == false &&
+                    {/* {repasswordValid == false &&
                         <Text style={{color:'red', textAlign: 'center'}}>
                             Confirm Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
-                    }
+                    } */}
                     <GradientButton
                         label="home"
                         _onPress={this._back}
-                    /> 
-                    <GradientButton
-                        label="sign up"
-                        _onPress={this._register}
                     />
+                    {isSignUp 
+                        ?
+                        <View style={{alignItems:'center'}}>
+                            <View style={styles.loginBtn}>
+                                <LinearGradient colors={['#E8222B', '#141414']} style={styles.loginBtnBackground}>
+                                    <ActivityIndicator color='#fff'/>
+                                </LinearGradient>
+                            </View>
+                        </View>
+                        :
+                        <GradientButton
+                            label="sign up"
+                            _onPress={this._register}
+                        />
+                    } 
                 </View>
             </KeyboardAwareScrollView>
         )
@@ -290,6 +334,8 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     loginBtn: {
+        // alignItems: 'center',
+        marginTop: 10,
         width: 280,
         height: 55,
     },

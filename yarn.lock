@@ -5519,6 +5519,11 @@ react-native-device-info@^5.5.1:
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-5.5.1.tgz#1b942f0d868161f96305055c296818ba415813dc"
   integrity sha512-ceaGnxOAULRzVpx03bPjbayuHD5g21CcdmKKvLK5mV72sbguNZbTHNmnH3//Bx9Hfy1XOm6zHhM5Yfb7Glqplw==
 
+react-native-document-picker@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-document-picker/-/react-native-document-picker-3.3.0.tgz#dc0172c6a0adf290cca0cbb8f4e8e1ea2e6bdd3c"
+  integrity sha512-h/O8USFx1TWQT7Sx5Qj1OVpADabHawckVPDrEiGUf6qCJF2h5kKZs3ZuxZe7wHSZX4LgQE0agZqagQUK+HLIVQ==
+
 react-native-drawer@2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/react-native-drawer/-/react-native-drawer-2.5.1.tgz#08b9314184f48c724f1b467f8859797369798654"

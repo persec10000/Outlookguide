@@ -10,9 +10,10 @@ import {
     AlertIOS,
     Text,
     TouchableHighlight,
-    PermissionsAndroid
+    PermissionsAndroid,
+    TextInput
 } from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
+import GradientButton from '../../components/GradientButton'
 import RNFS from 'react-native-fs';
 import Pdf from 'react-native-pdf';
 import {Images} from '../../themes';
@@ -27,6 +28,7 @@ export default class ViewFile extends React.Component {
             numberOfPages: 0,
             horizontal: false,
             show :false,
+            isfocus: false
         };
         this.pdf = null;
     }
@@ -88,6 +90,9 @@ export default class ViewFile extends React.Component {
             this.openFile();
           }
     }
+    back = () => {
+        this.props.navigation.goBack();
+    }
     openFile = async() => {
         // let dirs = RNFetchBlob.fs.dirs;
         // const mimetype = mime.lookup(params.DocumentGuid);
@@ -105,41 +110,55 @@ export default class ViewFile extends React.Component {
         //     }, 3000);
         // })
     }
+    validate = () => {
+        this.setState({isfocus: false})
+        if (this.state.pageStr !== 0){
+            this.setState({page: this.state.pageStr})
+        }
+    }
+    focus = () => {
+        this.setState({isfocus: true})
+    }
+    onChangePage = (text) => {
+        this.setState({pageStr: parseInt(text)})
+    }
     render() {
-        console.log("dir===>",RNFS.ExternalStorageDirectoryPath);
+        // console.log("dir===>",RNFS.ExternalStorageDirectoryPath,this.state.page);
         const source = require('../../resources/test.pdf');
         return (
             <View style={{flex: 1}}>
-                <Header type="back" title="View File" navigation={this.props.navigation}/>
+                {/* <Header type="back" title="View File" navigation={this.props.navigation}/> */}
+                <View style={styles.centerlogo}>
+                    <Image source={Images.applogo}/>
+                </View>
                 <View style={styles.container}>
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{flexDirection: 'row'}}>
                         <TouchableHighlight disabled={this.state.page === 1}
                             style={this.state.page === 1 ? styles.btnDisable : styles.btn}
                             onPress={() => this.prePage()}>
                             <Text style={styles.btnText}>{'-'}</Text>
                         </TouchableHighlight>
-                        <View style={styles.btnText}><Text style={styles.btnText}>Page</Text></View>
+                        <TextInput 
+                            style={{paddingVertical: 0,textAlign:'center'}}
+                            placeholder="1"
+                            keyboardType="numeric"
+                            onFocus={this.focus}
+                            onBlur={e => this.validate()}
+                            placeholderTextColor="#707070"
+                            onChangeText={(text)=>this.onChangePage(text)}
+                            value={!this.state.isfocus&&this.state.page.toString()}
+                        />
                         <TouchableHighlight disabled={this.state.page === this.state.numberOfPages}
                             style={this.state.page === this.state.numberOfPages ? styles.btnDisable : styles.btn}
                             onPress={() => this.nextPage()}>
                             <Text style={styles.btnText}>{'+'}</Text>
                         </TouchableHighlight>
-                        <TouchableHighlight disabled={this.state.scale === 1}
-                            style={this.state.scale === 1 ? styles.btnDisable : styles.btn}
-                            onPress={() => this.zoomOut()}>
-                            <Text style={styles.btnText}>{'-'}</Text>
-                        </TouchableHighlight>
-                        <View style={styles.btnText}><Text style={styles.btnText}>Scale</Text></View>
-                        <TouchableHighlight disabled={this.state.scale >= 3}
-                            style={this.state.scale >= 3 ? styles.btnDisable : styles.btn}
-                            onPress={() => this.zoomIn()}>
-                            <Text style={styles.btnText}>{'+'}</Text>
-                        </TouchableHighlight>
-                        <View style={styles.btnText}><Text style={styles.btnText}>{'View:'}</Text></View>
-                        <TouchableHighlight style={styles.btn} onPress={() => this.switchHorizontal()}>
-                            {!this.state.horizontal ? (<Text style={styles.btnText}>{'Book'}</Text>) : (
-                                <Text style={styles.btnText}>{'Slide'}</Text>)}
-                        </TouchableHighlight>
+                        <GradientButton
+                          label="read"
+                          _onPress={this.submit}
+                          buttonsize={{width:80,height:30}}
+                          margin = {{marginTop: 0, justifyContent:'center', marginLeft: 50}}
+                        />
                     </View>
                     <Pdf ref={(pdf) => {
                         this.pdf = pdf;
@@ -165,6 +184,12 @@ export default class ViewFile extends React.Component {
                         }}
                         style={styles.pdf} />
                 </View>
+                <View style={{position:'absolute', bottom: 10, left:0, right:0, alignItems: 'center'}}>
+                    <GradientButton
+                        label="exit"
+                        _onPress={this.back}
+                    />
+                </View>
             </View>
         )
     }
@@ -173,8 +198,17 @@ export default class ViewFile extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'flex-start',
+        marginTop: 85, 
+        justifyContent: 'center',
         alignItems: 'center',
+    },
+    centerlogo: {
+        position: 'absolute',
+		left: 0,
+        top: -20,
+        right: 0,
+        bottom: 0,
+        alignItems: 'center'
     },
     btn: {
         margin: 2,

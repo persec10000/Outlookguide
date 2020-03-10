@@ -122,7 +122,7 @@ export default class RegisterScreen extends ValidationComponent {
             repasswordValid
         } = this.state;
         if(_.isEmpty(emailAddress)|| _.isEmpty(password)|| _.isEmpty(passwordConfirm)) {
-            Alert.alert(__APP_NAME__, 'All fields must be not empty');
+            Alert.alert(__APP_NAME__, 'All fields must be populated');
             return
         }
         if(password !== passwordConfirm) {
@@ -159,10 +159,6 @@ export default class RegisterScreen extends ValidationComponent {
             else if (result[0] == 'NOK'){
                 Alert.alert(__APP_NAME__, result[1]);
                 self.setState({emailAddress: '', password: '', passwordConfirm: '', telno: '', isSignUp: false});
-                // Platform.select({
-                //     ios: ()=>{AlertIOS.alert(result[1])},
-                //     android: ()=>{ToastAndroid.show(result[1], ToastAndroid.SHORT)}
-                // })();
             }
           }, function (error) {
             console.log(error);
@@ -253,7 +249,7 @@ export default class RegisterScreen extends ValidationComponent {
                             marginBottom: 20
                         }}
                         value={passwordConfirm}
-                        placeholder="Re-Enter Password"
+                        placeholder="Re-enter password"
                         placeholderTextColor="#707070"
                         secureTextEntry={this.state.showconfirmpassword}
                         onChangeText={this._onChangePasswordConfirm}
@@ -264,10 +260,6 @@ export default class RegisterScreen extends ValidationComponent {
                             Confirm Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
                     } */}
-                    <GradientButton
-                        label="home"
-                        _onPress={this._back}
-                    />
                     {isSignUp 
                         ?
                         <View style={{alignItems:'center'}}>
@@ -283,6 +275,10 @@ export default class RegisterScreen extends ValidationComponent {
                             _onPress={this._register}
                         />
                     } 
+                    <GradientButton
+                        label="home"
+                        _onPress={this._back}
+                    />
                 </View>
             </KeyboardAwareScrollView>
         )

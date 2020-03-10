@@ -148,7 +148,7 @@ export default class ForgotpassScreen extends ValidationComponent {
                             marginBottom: 30
                         }}
                         value={emailAddress}
-                        placeholder="Username"
+                        placeholder="Email"
                         placeholderTextColor="#707070"
                         onChangeText={this._onChangeEmail}
                     />   
@@ -169,10 +169,6 @@ export default class ForgotpassScreen extends ValidationComponent {
                             Password must be contain at least one uppercase, number, lowercase and character
                         </Text>
                     } */}
-                    <GradientButton
-                        label="home"
-                        _onPress={this._back}
-                    />
                     {isForgot 
                         ?
                         <View style={{alignItems:'center'}}>
@@ -188,6 +184,10 @@ export default class ForgotpassScreen extends ValidationComponent {
                             _onPress={this._register}
                         />
                     }
+                    <GradientButton
+                        label="home"
+                        _onPress={this._back}
+                    />
                 </View>
             </KeyboardAwareScrollView>
         )

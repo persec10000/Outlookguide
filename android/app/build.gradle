@@ -188,6 +188,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-document-picker')
     implementation project(':react-native-fs')
     implementation project(':rn-fetch-blob')
     implementation project(':react-native-vector-icons')

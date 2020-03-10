@@ -25,6 +25,7 @@ import {Images} from '../../themes'
 import Orientation from 'react-native-orientation-locker';
 import _ from 'lodash';
 import { usersService } from '../../services/UsersService';
+import AsyncStorage from '@react-native-community/async-storage'
 let self = null;
 export default class LoginScreen extends ValidationComponent {
     static navigationOptions = ({ navigation, screenProps }) => {
@@ -106,8 +107,8 @@ export default class LoginScreen extends ValidationComponent {
     }
 
     _login = async () => {
-        this.props.navigation.navigate('Home');
-        return;
+        // this.props.navigation.navigate('Home');
+        // return;
         const { 
             emailAddress,
             password,
@@ -117,7 +118,7 @@ export default class LoginScreen extends ValidationComponent {
         if(
              _.isEmpty(emailAddress)
             || _.isEmpty(password)) {
-                Alert.alert(__APP_NAME__, 'All fields must be not empty');
+                Alert.alert(__APP_NAME__, 'All fields must be populated');
                 return
             }        
         // if (!passwordValid){
@@ -132,10 +133,10 @@ export default class LoginScreen extends ValidationComponent {
             lang: global.deviceLocale
         }
 
-        usersService.signin(params, function(res) {
+        usersService.signin(params, async function(res) {
             let result = res.split("|");
-            console.log("result==>",result);
             if(result[0] == 'OK') {
+              await AsyncStorage.setItem('user', result[1])
               global.sessionId = result[1];
               Platform.select({
                   ios: ()=>{AlertIOS.alert("Login Succeed")},

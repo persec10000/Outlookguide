@@ -43,13 +43,13 @@ const MainAppRouteConfigs = {
   Library: {
     screen: LibraryScreen,
     navigationOptions: {
-      headerShown: false,
+      header: null,
     }
   },
   SubLibrary: {
     screen: SubLibraryScreen,
     navigationOptions: {
-      headerShown: false
+      header: null
     }
   },
   ViewFile: {

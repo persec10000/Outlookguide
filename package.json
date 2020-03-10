@@ -23,6 +23,7 @@
     "react-native-camera": "^3.16.0",
     "react-native-custom-actionsheet": "^0.1.0",
     "react-native-device-info": "^5.5.1",
+    "react-native-document-picker": "^3.3.0",
     "react-native-easy-toast": "^1.2.0",
     "react-native-form-validator": "^0.3.2",
     "react-native-fs": "^2.16.6",

@@ -3,6 +3,7 @@ import {BackHandler, StyleSheet, View, Text, Image, TouchableOpacity, Alert} fro
 import SafeAreaView from 'react-native-safe-area-view';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {DrawerActions} from 'react-navigation-drawer';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const MenuItem = props => {
   const {label, onPressMenu} = props;
@@ -19,16 +20,17 @@ export default class Drawer extends Component {
   constructor(props) {
     super(props);
   }
-  exit = () => {
+  exit = async() => {
   Alert.alert(
             global.__APP_NAME__,
-            'Are you sure you want to exit?',
+            'Are you sure you want to log out?',
             [
                 { text: 'Cancel', onPress: ()=>{
                   this.props.navigation.dispatch(DrawerActions.closeDrawer())
                 }},
                 { text: 'OK', onPress: ()=>{
-                    BackHandler.exitApp()
+                  AsyncStorage.removeItem('user');
+                  BackHandler.exitApp();
                 }},
             ],
             { cancelable: false }
@@ -56,7 +58,7 @@ export default class Drawer extends Component {
               onPressMenu={() => this.props.navigation.navigate('AboutUs')}
             />
             <MenuItem
-              label="exit"
+              label="log out"
               onPressMenu={() => this.exit()}
             />
           </View>

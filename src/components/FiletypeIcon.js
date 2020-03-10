@@ -20,7 +20,7 @@ const filetypes = {
     avi: Images.wmv,
 };
 
-const defaultFiletype = filetypes.doc;
+const defaultFiletype = filetypes.pdf;
 
 const getSource = (extention = '') => {
     const src = extention.replace('.', '').toLowerCase();

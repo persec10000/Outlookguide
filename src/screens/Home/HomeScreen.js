@@ -10,6 +10,7 @@ import {DrawerActions} from 'react-navigation-drawer'
 import {Images} from '../../themes'
 import SwitchToggle from '@dooboo-ui/native-switch-toggle';
 import {RNCamera} from 'react-native-camera';
+import LinearGradient from 'react-native-linear-gradient';
 import {NodeCameraView, NodePlayerView} from 'react-native-nodemediaclient';
 import { withNavigationFocus } from 'react-navigation';
 import ActionButton from 'react-native-action-button';
@@ -29,7 +30,8 @@ class HomeScreen extends PureComponent  {
             recording: false,
             processing: false,
             publishBtnTitle: "",
-            isPublish: true
+            isPublish: true,
+            magnifier: 1
         }
         this.backhandler = null;
         self = this;
@@ -84,8 +86,12 @@ class HomeScreen extends PureComponent  {
             self.vb.start();
         });
     }
-    switch = () => {
-        this.vb.switchCamera();
+    microphone = () => {
+        // this.vb.switchCamera();
+        Platform.select({
+            ios: () => { AlertIOS.alert('Voice Recording start'); },
+            android: () => { ToastAndroid.show('Voice Recording start', ToastAndroid.SHORT); }
+        })();
     }
 
     Learn = () => {
@@ -116,7 +122,16 @@ class HomeScreen extends PureComponent  {
     toggleDrawer = () => {
         this.props.navigation.dispatch(DrawerActions.openDrawer());
     }   
-   
+    zoomin = () => {
+        this.setState({magnifier: this.state.magnifier+0.2}, ()=>{
+            this.zoom._zoomToLocation(1,1,this.state.magnifier, true)
+        })
+    }
+    zoomout = () => {
+        this.setState({magnifier: this.state.magnifier-0.2}, ()=>{
+            this.zoom._zoomToLocation(1,1,this.state.magnifier, true)
+        })
+    }
     render() {
         const {isGuide, switchOn2, ismount,recording, isRead, isLearn} = this.state;
         this.requestCameraPermission();
@@ -144,47 +159,47 @@ class HomeScreen extends PureComponent  {
         return (
            <View style={styles.container}>
                 <ReactNativeZoomableView
+                    ref={(zoom) => {this.zoom = zoom}}
                     maxZoom={1.5}
                     minZoom={0.5}
-                    zoomStep={0.5}
+                    zoomStep={0.2}
                     initialZoom={1}
                     bindToBorders={true}
                     onZoomAfter={this.logOutZoomState}
+                    // zoomLevel = {50}
                 >
                     <NodeCameraView 
                         style={{ height: "100%" }}
                         ref={(vb) => { this.vb = vb }}
                         // outputUrl = {"http://outlookguide.net/OG-listener.php"}
-                        camera={{ cameraId: 1, cameraFrontMirror: true }}
+                        camera={{ cameraId: 0, cameraFrontMirror: true }}
                         audio={{ bitrate: 32000, profile: 1, samplerate: 44100 }}
                         video={{ preset: 24, bitrate: 400000, profile: 2, fps: 30, videoFrontMirror: true }}
                         autopreview={true}
                     />
                     <ActionButton
-                        buttonColor="#1abc9c"
+                        buttonColor="#E8222B"
                         offsetY={70}
                         offsetX={10}
                         size={32}
                         hideShadow={true}
                         verticalOrientation='down'
                         >
-                        <ActionButton.Item buttonColor='#9b59b6' title="Reverse Camera" onPress={() => {
-                            this.vb.switchCamera();
+                        <ActionButton.Item buttonColor='#9b59b6' title="Zoom In" onPress={() => {
+                            // this.vb.switchCamera();
+                            this.zoomin();
                             this.state.flashenable = false;
                         }}>
-                            <Icon name="ios-reverse-camera" style={styles.actionButtonIcon} />
+                            <Icon name="ios-add" style={styles.actionButtonIcon} />
                         </ActionButton.Item>
-                        <ActionButton.Item buttonColor='#3498db' title="Switch Flashlight" onPress={() => {
+                         <ActionButton.Item buttonColor='#e74c3c' title="Zoom Out" onPress={() => { this.zoomout() }}>
+                            <Icon name="ios-remove" style={styles.actionButtonIcon} />
+                        </ActionButton.Item>
+                        <ActionButton.Item buttonColor='#3498db' title="Toggle Flashlight" onPress={() => {
                             this.state.flashenable = !this.state.flashenable;
                             this.vb.flashEnable(this.state.flashenable);
                         }}>
                             <Icon name="ios-bulb" style={styles.actionButtonIcon} />
-                        </ActionButton.Item>
-                        {/* <ActionButton.Item buttonColor='#e6ce28' title="Publish" onPress={() => { this.vb.start() }}>
-                            <Icon name="ios-paper-plane" style={styles.actionButtonIcon} />
-                        </ActionButton.Item> */}
-                        <ActionButton.Item buttonColor='#e74c3c' title="Close" onPress={() => { this.props.navigation.goBack() }}>
-                            <Icon name="ios-power" style={styles.actionButtonIcon} />
                         </ActionButton.Item>
                     </ActionButton>
                     <Image source={Images.applogo} style={{position: 'absolute', top: -10, left: 0}}/>
@@ -229,17 +244,27 @@ class HomeScreen extends PureComponent  {
                             />
                         </View>
                     }
-                    <View style={styles.switchButton}>
-                        <TouchableOpacity onPress={this.switch} style={styles.button}>
+                    <TouchableOpacity style={styles.switchButton}>
+                        <LinearGradient
+                            style={styles.gradientBtnBackground}
+                            colors={['#E8222B', '#141414']}>
+                            <FontAwesome
+                                name='microphone'
+                                color='white'
+                                size={27}>
+                            </FontAwesome>
+                        </LinearGradient>
+                    </TouchableOpacity>
+                    {/* <View style={styles.switchButton}>
+                        <TouchableOpacity onPress={this.microphone} style={styles.button}>
                             <FontAwesome
                                 name='microphone'
                                 color='white'
                                 size={27}
                                 style={{marginLeft: 18}}>
-
                             </FontAwesome>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                     <View style={{flexDirection: 'row', position:'absolute', bottom:20, right: 10}}>
                         {recording?
                             <GradientSmallButton
@@ -290,9 +315,9 @@ const styles = StyleSheet.create({
         height: 55, 
         marginHorizontal: 40,
         borderRadius: 27,
-        transform: [
-            {scaleX: 1.8}
-        ],
+        // transform: [
+        //     {scaleX: 1.8}
+        // ],
         backgroundColor:'red',
         opacity: 0.5
     },
@@ -345,5 +370,29 @@ const styles = StyleSheet.create({
         height: 22,
         color: 'white',
       },
+      
+  gradientBtn: {
+    shadowColor: '#1C191966',
+    shadowOffset: {
+      width: 0,
+      height: 6,
+    },
+    shadowRadius: 6,
+    shadowOpacity: 1,
+    elevation: 12,
+  },
+  gradientBtnBackground: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.55
+  },
+  gradientBtnLabel: {
+    fontSize: 18,
+    letterSpacing: 0,
+    color: '#fff',
+  },
 })
 
